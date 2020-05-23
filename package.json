@@ -32,14 +32,10 @@
   },
   "dependencies": {
     "markdown-it": "^11.0.0",
-    "markdown-it-deflist": "^2.0.3",
     "markdown-it-prism": "^2.0.3",
     "nunjucks": "^3.2.1",
-    "postcss-cli": "^7.1.1",
-    "postcss-custom-media": "^7.0.8",
-    "postcss-custom-selectors": "^5.1.2",
+    "postcss": "^7.0.30",
     "postcss-easy-import": "^3.0.0",
-    "postcss-extend-rule": "^3.0.0",
-    "postcss-media-minmax": "^4.0.0"
+    "postcss-extend-rule": "^3.0.0"
   }
 }
