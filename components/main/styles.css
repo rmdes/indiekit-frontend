@@ -3,6 +3,7 @@
   background-color: var(--color-background);
   color: var(--color-on-background);
   flex: 1;
+  grid-area: main;
 }
 
 .main__container {

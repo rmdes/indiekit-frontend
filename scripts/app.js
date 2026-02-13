@@ -7,6 +7,7 @@ import { GeoInputFieldComponent } from "../components/geo-input/index.js";
 import { NotificationBannerComponent } from "../components/notification-banner/index.js";
 import { RadiosFieldComponent } from "../components/radios/index.js";
 import { SharePreviewComponent } from "../components/share-preview/index.js";
+import { SidebarComponent } from "../components/sidebar/index.js";
 import { TagInputFieldComponent } from "../components/tag-input/index.js";
 import { TextareaFieldComponent } from "../components/textarea/index.js";
 
@@ -19,5 +20,6 @@ customElements.define("geo-input-field", GeoInputFieldComponent);
 customElements.define("notification-banner", NotificationBannerComponent);
 customElements.define("radios-field", RadiosFieldComponent);
 customElements.define("share-preview", SharePreviewComponent);
+customElements.define("sidebar-nav", SidebarComponent);
 customElements.define("tag-input-field", TagInputFieldComponent);
 customElements.define("textarea-field", TextareaFieldComponent);

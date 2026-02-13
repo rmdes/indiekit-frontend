@@ -31,6 +31,7 @@
 {% from "textarea/macro.njk" import textarea with context %}
 {% from "user/macro.njk" import user with context %}
 {% from "warning-text/macro.njk" import warningText with context %}
+{% from "sidebar/macro.njk" import sidebar with context %}
 {% from "widget/macro.njk" import widget with context %}
 {% set appClasses = "app" + (" " + appClasses if appClasses) + (" app--minimalui" if minimalui) %}
 {% set mainClasses = "main" + (" " + mainClasses if mainClasses) %}
@@ -64,6 +65,21 @@
 <body class="{{ appClasses }}">
   <script>document.body.classList.add("js-enabled")</script>
 {{ skipLink() }}
+
+{% if not minimalui %}
+{{ sidebar({
+  url: application.url,
+  name: application.name,
+  navigation: {
+    items: application.navigation | rejectattr("secondary")
+  },
+  secondaryNavigation: {
+    items: application.navigation | selectattr("secondary")
+  },
+  logoSrc: application.url + assetPath | default("/assets") + "/icon.svg"
+}) }}
+<div class="sidebar-backdrop" aria-hidden="true"></div>
+{% endif %}
 
 {% block header %}
 {{ header({
