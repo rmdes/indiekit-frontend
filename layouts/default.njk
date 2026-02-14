@@ -122,6 +122,12 @@
 {% endblock %}
 <script type="module">
   if (navigator.serviceWorker) {
+    // Reload page when a new service worker activates (new deploy)
+    navigator.serviceWorker.addEventListener("message", (event) => {
+      if (event.data && event.data.command === "SW_UPDATED") {
+        window.location.reload();
+      }
+    });
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("/serviceworker.js", {
         scope: '/'
