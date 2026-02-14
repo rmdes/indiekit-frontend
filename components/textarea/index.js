@@ -402,17 +402,18 @@ export const TextareaFieldComponent = class extends HTMLElement {
       if (activeFilter === "all") return allItems;
       return allItems.filter((item) => {
         const type = item["media-type"] || "";
-        if (activeFilter === "photo") return type.startsWith("image/");
-        if (activeFilter === "audio") return type.startsWith("audio/");
-        if (activeFilter === "video") return type.startsWith("video/");
-        return true;
+        return type === activeFilter;
       });
+    }
+
+    function isImageType(mediaType) {
+      return mediaType === "photo";
     }
 
     function getMediaIcon(mediaType) {
       if (!mediaType) return "\uD83D\uDCC4";
-      if (mediaType.startsWith("audio/")) return "\uD83C\uDFB5";
-      if (mediaType.startsWith("video/")) return "\uD83C\uDFAC";
+      if (mediaType === "audio") return "\uD83C\uDFB5";
+      if (mediaType === "video") return "\uD83C\uDFAC";
       return "\uD83D\uDCC4";
     }
 
@@ -432,7 +433,7 @@ export const TextareaFieldComponent = class extends HTMLElement {
       for (const item of filtered) {
         const url = item.url;
         const mediaType = item["media-type"] || "";
-        const isImage = mediaType.startsWith("image/");
+        const isImage = isImageType(mediaType);
         const filename = getFilename(url);
 
         const tile = document.createElement("button");
