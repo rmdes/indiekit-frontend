@@ -1,5 +1,6 @@
 import { IndiekitError } from "@indiekit/error";
 
+import { openMediaBrowser } from "../../lib/media-browser.js";
 import { wrapElement } from "../../lib/utils/wrap-element.js";
 
 export const FileInputFieldController = class extends HTMLElement {
@@ -59,6 +60,46 @@ export const FileInputFieldController = class extends HTMLElement {
     const $fileInputFile =
       this.$fileInputPicker.querySelector(`.file-input__file`);
     $fileInputFile.addEventListener("change", (event) => this.fetch(event));
+
+    // Add "Browse media" button next to the upload button
+    if (this.endpoint) {
+      const $inputButtonGroup = this.querySelector(".input-button-group");
+      if ($inputButtonGroup) {
+        const $browseBtn = document.createElement("button");
+        $browseBtn.type = "button";
+        $browseBtn.className = "file-input__browse button button--secondary";
+        $browseBtn.textContent = "Browse media";
+        $browseBtn.addEventListener("click", () => this.browseMedia());
+        $inputButtonGroup.append($browseBtn);
+      }
+    }
+  }
+
+  /**
+   * Open media browser to select an existing media file
+   */
+  browseMedia() {
+    if (this._mediaBrowserOpen) return;
+    this._mediaBrowserOpen = true;
+
+    // Determine filter type from the file input's accept attribute
+    const $fileInputFile = this.querySelector(".file-input__file");
+    const accept = $fileInputFile ? $fileInputFile.getAttribute("accept") : "";
+    let filterType = "all";
+    if (accept && accept.startsWith("image/")) filterType = "photo";
+    else if (accept && accept.startsWith("audio/")) filterType = "audio";
+    else if (accept && accept.startsWith("video/")) filterType = "video";
+
+    openMediaBrowser({
+      endpoint: this.endpoint,
+      filterType,
+      onSelect: (url) => {
+        this.$fileInputPath.value = url;
+      },
+      onClose: () => {
+        this._mediaBrowserOpen = false;
+      },
+    });
   }
 
   /**

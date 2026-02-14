@@ -1,5 +1,7 @@
 import EasyMDE from "easymde";
 
+import { openMediaBrowser } from "../../lib/media-browser.js";
+
 const paths = {
   bold: "M17 30c6.1 0 10-3 10-8 0-3.5-2.7-6.3-6.5-6.5V15c3-.4 5-3 5-6 0-4.5-3.5-7-9-7H5v28h12ZM12 7h2c2.5 0 4 1 4 3 0 1.5-1.5 3-4 3h-2V7Zm0 18v-7h2.3c3.1 0 4.7 1.1 4.7 3.4 0 2.5-1.4 3.6-4.8 3.6H12Z",
   code: "m13.5 8.5-3-3L2 14C.5 15.5.5 16.5 2 18l8.5 8.5 3-3L6 16l7.5-7.5Zm5 0 3-3L30 14c1.5 1.5 1.5 2.5 0 4l-8.5 8.5-3-3L26 16l-7.5-7.5Z",
@@ -291,224 +293,19 @@ export const TextareaFieldComponent = class extends HTMLElement {
     if (this._mediaBrowserOpen) return;
     this._mediaBrowserOpen = true;
 
-    const endpoint = this.editorEndpoint;
-    let allItems = [];
-    let afterCursor = null;
-    let activeFilter = "all";
-
-    // Create modal overlay
-    const overlay = document.createElement("div");
-    overlay.className = "media-browser";
-    overlay.setAttribute("role", "dialog");
-    overlay.setAttribute("aria-modal", "true");
-    overlay.setAttribute("aria-label", "Browse media");
-
-    const modal = document.createElement("div");
-    modal.className = "media-browser__modal";
-
-    // Header
-    const header = document.createElement("div");
-    header.className = "media-browser__header";
-
-    const title = document.createElement("h2");
-    title.className = "media-browser__title";
-    title.textContent = "Browse media";
-    header.append(title);
-
-    const closeBtn = document.createElement("button");
-    closeBtn.type = "button";
-    closeBtn.className = "media-browser__close";
-    closeBtn.setAttribute("aria-label", "Close");
-    closeBtn.textContent = "\u00D7";
-    closeBtn.addEventListener("click", close);
-    header.append(closeBtn);
-
-    // Filters
-    const filters = document.createElement("div");
-    filters.className = "media-browser__filters";
-
-    for (const filter of ["all", "photo", "audio", "video"]) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "media-browser__filter";
-      if (filter === "all") btn.classList.add("is-active");
-      btn.textContent = filter.charAt(0).toUpperCase() + filter.slice(1);
-      btn.dataset.filter = filter;
-      btn.addEventListener("click", () => {
-        activeFilter = filter;
-        for (const f of filters.querySelectorAll(".media-browser__filter")) {
-          f.classList.toggle("is-active", f.dataset.filter === filter);
-        }
-        renderGrid();
-      });
-      filters.append(btn);
-    }
-
-    // Grid
-    const grid = document.createElement("div");
-    grid.className = "media-browser__grid";
-
-    // Loading
-    const loading = document.createElement("div");
-    loading.className = "media-browser__loading";
-    loading.textContent = "Loading\u2026";
-
-    // Empty
-    const empty = document.createElement("p");
-    empty.className = "media-browser__empty";
-    empty.textContent = "No media files found.";
-    empty.hidden = true;
-
-    // Load more
-    const loadMoreBtn = document.createElement("button");
-    loadMoreBtn.type = "button";
-    loadMoreBtn.className = "media-browser__load-more";
-    loadMoreBtn.textContent = "Load more";
-    loadMoreBtn.hidden = true;
-    loadMoreBtn.addEventListener("click", () => fetchMedia());
-
-    modal.append(header, filters, grid, loading, empty, loadMoreBtn);
-    overlay.append(modal);
-    document.body.append(overlay);
-
-    // Lock body scroll
-    document.body.style.overflow = "hidden";
-
-    // Close handlers
-    overlay.addEventListener("click", (event) => {
-      if (event.target === overlay) close();
+    openMediaBrowser({
+      endpoint: this.editorEndpoint,
+      onSelect: (url, filename, isImage) => {
+        const cm = editor.codemirror;
+        const cursor = cm.getCursor();
+        const text = isImage ? `![](${url})` : `[${filename}](${url})`;
+        cm.replaceRange(text, cursor);
+      },
+      onClose: () => {
+        this._mediaBrowserOpen = false;
+        editor.codemirror.focus();
+      },
     });
-
-    const onKeyDown = (event) => {
-      if (event.key === "Escape") close();
-    };
-    document.addEventListener("keydown", onKeyDown);
-
-    function close() {
-      overlay.remove();
-      document.body.style.overflow = "";
-      document.removeEventListener("keydown", onKeyDown);
-      // Use arrow-free reference to component
-      editor.codemirror.focus();
-      // Reset flag on the component instance via closure
-      closeBrowser();
-    }
-
-    const closeBrowser = () => {
-      this._mediaBrowserOpen = false;
-    };
-
-    function getFilteredItems() {
-      if (activeFilter === "all") return allItems;
-      return allItems.filter((item) => {
-        const type = item["media-type"] || "";
-        return type === activeFilter;
-      });
-    }
-
-    function isImageType(mediaType) {
-      return mediaType === "photo";
-    }
-
-    function getMediaIcon(mediaType) {
-      if (!mediaType) return "\uD83D\uDCC4";
-      if (mediaType === "audio") return "\uD83C\uDFB5";
-      if (mediaType === "video") return "\uD83C\uDFAC";
-      return "\uD83D\uDCC4";
-    }
-
-    function getFilename(url) {
-      try {
-        return decodeURIComponent(url.split("/").pop());
-      } catch {
-        return url.split("/").pop();
-      }
-    }
-
-    function renderGrid() {
-      grid.replaceChildren();
-      const filtered = getFilteredItems();
-      empty.hidden = filtered.length > 0;
-
-      for (const item of filtered) {
-        const url = item.url;
-        const mediaType = item["media-type"] || "";
-        const isImage = isImageType(mediaType);
-        const filename = getFilename(url);
-
-        const tile = document.createElement("button");
-        tile.type = "button";
-        tile.className = "media-browser__item";
-        tile.title = filename;
-        tile.addEventListener("click", () => {
-          insertMedia(url, filename, isImage);
-          close();
-        });
-
-        if (isImage) {
-          const img = document.createElement("img");
-          img.src = `/image/s_240x240/${encodeURIComponent(url)}`;
-          img.alt = filename;
-          img.loading = "lazy";
-          img.className = "media-browser__thumbnail";
-          tile.append(img);
-        } else {
-          const icon = document.createElement("span");
-          icon.className = "media-browser__icon";
-          icon.textContent = getMediaIcon(mediaType);
-          tile.append(icon);
-
-          const name = document.createElement("span");
-          name.className = "media-browser__filename";
-          name.textContent = filename;
-          tile.append(name);
-        }
-
-        grid.append(tile);
-      }
-    }
-
-    function insertMedia(url, filename, isImage) {
-      const cm = editor.codemirror;
-      const cursor = cm.getCursor();
-      const text = isImage ? `![](${url})` : `[${filename}](${url})`;
-      cm.replaceRange(text, cursor);
-    }
-
-    async function fetchMedia() {
-      loading.hidden = false;
-      loadMoreBtn.hidden = true;
-
-      try {
-        const url = new URL(endpoint, globalThis.location.origin);
-        url.searchParams.set("q", "source");
-        url.searchParams.set("limit", "20");
-        if (afterCursor) url.searchParams.set("after", afterCursor);
-
-        const response = await fetch(url.href, { credentials: "same-origin" });
-        if (!response.ok) throw new Error(response.statusText);
-
-        const data = await response.json();
-        const items = data.items || [];
-        allItems = allItems.concat(items);
-
-        afterCursor =
-          data.paging && data.paging.after ? data.paging.after : null;
-        loadMoreBtn.hidden = !afterCursor;
-
-        renderGrid();
-      } catch (error) {
-        const errorMsg = document.createElement("p");
-        errorMsg.className = "media-browser__error";
-        errorMsg.textContent = `Error loading media: ${error.message}`;
-        grid.replaceChildren(errorMsg);
-      } finally {
-        loading.hidden = true;
-      }
-    }
-
-    // Initial fetch
-    fetchMedia();
   }
 
   /**
