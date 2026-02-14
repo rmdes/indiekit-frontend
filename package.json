@@ -1,6 +1,6 @@
 {
   "name": "@rmdes/indiekit-frontend",
-  "version": "1.0.0-beta.28",
+  "version": "1.0.0-beta.29",
   "description": "Frontend components for Indiekit (fork with floating toolbar)",
   "keywords": [
     "express",

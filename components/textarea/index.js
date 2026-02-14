@@ -21,6 +21,8 @@ const paths = {
     "M9 2h22v4H9Zm0 12h22v4H9Zm0 12h22v4H9ZM3 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm0 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm0 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z",
   "upload-image":
     "M2 0h28a2 2 0 0 1 2 2v28a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2C0 .9.9 0 2 0Zm26 24-9-14-7 11-3-4.8L4 24h24Z",
+  "browse-media":
+    "M1 1h13v13H1V1Zm17 0h13v13H18V1ZM1 18h13v13H1V18Zm17 0h13v13H18V18Z",
 };
 
 /**
@@ -105,7 +107,17 @@ export const TextareaFieldComponent = class extends HTMLElement {
             "table",
             "code",
             "link",
-            ...(this.editorImageUpload === "false" ? [] : ["upload-image"]),
+            ...(this.editorImageUpload === "false"
+              ? []
+              : [
+                  "upload-image",
+                  {
+                    name: "browse-media",
+                    action: () => this._openMediaBrowser(editor),
+                    className: "browse-media",
+                    title: "Browse media",
+                  },
+                ]),
             "|",
             "undo",
             "side-by-side",
@@ -269,6 +281,233 @@ export const TextareaFieldComponent = class extends HTMLElement {
     if (this._$floatingToolbar) {
       this._$floatingToolbar.classList.remove("is-visible");
     }
+  }
+
+  /**
+   * Open media browser modal to browse and insert existing media files
+   * @param {EasyMDE} editor - EasyMDE instance
+   */
+  _openMediaBrowser(editor) {
+    if (this._mediaBrowserOpen) return;
+    this._mediaBrowserOpen = true;
+
+    const endpoint = this.editorEndpoint;
+    let allItems = [];
+    let afterCursor = null;
+    let activeFilter = "all";
+
+    // Create modal overlay
+    const overlay = document.createElement("div");
+    overlay.className = "media-browser";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", "Browse media");
+
+    const modal = document.createElement("div");
+    modal.className = "media-browser__modal";
+
+    // Header
+    const header = document.createElement("div");
+    header.className = "media-browser__header";
+
+    const title = document.createElement("h2");
+    title.className = "media-browser__title";
+    title.textContent = "Browse media";
+    header.append(title);
+
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "media-browser__close";
+    closeBtn.setAttribute("aria-label", "Close");
+    closeBtn.textContent = "\u00D7";
+    closeBtn.addEventListener("click", close);
+    header.append(closeBtn);
+
+    // Filters
+    const filters = document.createElement("div");
+    filters.className = "media-browser__filters";
+
+    for (const filter of ["all", "photo", "audio", "video"]) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "media-browser__filter";
+      if (filter === "all") btn.classList.add("is-active");
+      btn.textContent = filter.charAt(0).toUpperCase() + filter.slice(1);
+      btn.dataset.filter = filter;
+      btn.addEventListener("click", () => {
+        activeFilter = filter;
+        for (const f of filters.querySelectorAll(".media-browser__filter")) {
+          f.classList.toggle("is-active", f.dataset.filter === filter);
+        }
+        renderGrid();
+      });
+      filters.append(btn);
+    }
+
+    // Grid
+    const grid = document.createElement("div");
+    grid.className = "media-browser__grid";
+
+    // Loading
+    const loading = document.createElement("div");
+    loading.className = "media-browser__loading";
+    loading.textContent = "Loading\u2026";
+
+    // Empty
+    const empty = document.createElement("p");
+    empty.className = "media-browser__empty";
+    empty.textContent = "No media files found.";
+    empty.hidden = true;
+
+    // Load more
+    const loadMoreBtn = document.createElement("button");
+    loadMoreBtn.type = "button";
+    loadMoreBtn.className = "media-browser__load-more";
+    loadMoreBtn.textContent = "Load more";
+    loadMoreBtn.hidden = true;
+    loadMoreBtn.addEventListener("click", () => fetchMedia());
+
+    modal.append(header, filters, grid, loading, empty, loadMoreBtn);
+    overlay.append(modal);
+    document.body.append(overlay);
+
+    // Lock body scroll
+    document.body.style.overflow = "hidden";
+
+    // Close handlers
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) close();
+    });
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") close();
+    };
+    document.addEventListener("keydown", onKeyDown);
+
+    function close() {
+      overlay.remove();
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKeyDown);
+      // Use arrow-free reference to component
+      editor.codemirror.focus();
+      // Reset flag on the component instance via closure
+      closeBrowser();
+    }
+
+    const closeBrowser = () => {
+      this._mediaBrowserOpen = false;
+    };
+
+    function getFilteredItems() {
+      if (activeFilter === "all") return allItems;
+      return allItems.filter((item) => {
+        const type = item["media-type"] || "";
+        if (activeFilter === "photo") return type.startsWith("image/");
+        if (activeFilter === "audio") return type.startsWith("audio/");
+        if (activeFilter === "video") return type.startsWith("video/");
+        return true;
+      });
+    }
+
+    function getMediaIcon(mediaType) {
+      if (!mediaType) return "\uD83D\uDCC4";
+      if (mediaType.startsWith("audio/")) return "\uD83C\uDFB5";
+      if (mediaType.startsWith("video/")) return "\uD83C\uDFAC";
+      return "\uD83D\uDCC4";
+    }
+
+    function getFilename(url) {
+      try {
+        return decodeURIComponent(url.split("/").pop());
+      } catch {
+        return url.split("/").pop();
+      }
+    }
+
+    function renderGrid() {
+      grid.replaceChildren();
+      const filtered = getFilteredItems();
+      empty.hidden = filtered.length > 0;
+
+      for (const item of filtered) {
+        const url = item.url;
+        const mediaType = item["media-type"] || "";
+        const isImage = mediaType.startsWith("image/");
+        const filename = getFilename(url);
+
+        const tile = document.createElement("button");
+        tile.type = "button";
+        tile.className = "media-browser__item";
+        tile.title = filename;
+        tile.addEventListener("click", () => {
+          insertMedia(url, filename, isImage);
+          close();
+        });
+
+        if (isImage) {
+          const img = document.createElement("img");
+          img.src = url;
+          img.alt = filename;
+          img.loading = "lazy";
+          img.className = "media-browser__thumbnail";
+          tile.append(img);
+        } else {
+          const icon = document.createElement("span");
+          icon.className = "media-browser__icon";
+          icon.textContent = getMediaIcon(mediaType);
+          tile.append(icon);
+
+          const name = document.createElement("span");
+          name.className = "media-browser__filename";
+          name.textContent = filename;
+          tile.append(name);
+        }
+
+        grid.append(tile);
+      }
+    }
+
+    function insertMedia(url, filename, isImage) {
+      const cm = editor.codemirror;
+      const cursor = cm.getCursor();
+      const text = isImage ? `![](${url})` : `[${filename}](${url})`;
+      cm.replaceRange(text, cursor);
+    }
+
+    async function fetchMedia() {
+      loading.hidden = false;
+      loadMoreBtn.hidden = true;
+
+      try {
+        const url = new URL(endpoint, globalThis.location.origin);
+        url.searchParams.set("q", "source");
+        url.searchParams.set("limit", "20");
+        if (afterCursor) url.searchParams.set("after", afterCursor);
+
+        const response = await fetch(url.href, { credentials: "same-origin" });
+        if (!response.ok) throw new Error(response.statusText);
+
+        const data = await response.json();
+        const items = data.items || [];
+        allItems = allItems.concat(items);
+
+        afterCursor =
+          data.paging && data.paging.after ? data.paging.after : null;
+        loadMoreBtn.hidden = !afterCursor;
+
+        renderGrid();
+      } catch (error) {
+        const errorMsg = document.createElement("p");
+        errorMsg.className = "media-browser__error";
+        errorMsg.textContent = `Error loading media: ${error.message}`;
+        grid.replaceChildren(errorMsg);
+      } finally {
+        loading.hidden = true;
+      }
+    }
+
+    // Initial fetch
+    fetchMedia();
   }
 
   /**
