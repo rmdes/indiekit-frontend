@@ -446,7 +446,7 @@ export const TextareaFieldComponent = class extends HTMLElement {
 
         if (isImage) {
           const img = document.createElement("img");
-          img.src = url;
+          img.src = `/image/s_240x240/${encodeURIComponent(url)}`;
           img.alt = filename;
           img.loading = "lazy";
           img.className = "media-browser__thumbnail";
