@@ -27,6 +27,10 @@
   flex-direction: column;
   justify-content: space-between;
 
+  & .sidebar {
+    display: none;
+  }
+
   & .header,
   & .footer {
     border: 0;
