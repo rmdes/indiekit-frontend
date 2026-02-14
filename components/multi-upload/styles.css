@@ -1,0 +1,125 @@
+.multi-upload {
+  max-inline-size: var(--line-measure);
+}
+
+/* Drop zone */
+.multi-upload__drop-zone {
+  align-items: center;
+  border: var(--border-width-thick) dashed var(--color-outline);
+  border-radius: var(--border-radius-large);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  justify-content: center;
+  padding: var(--space-xl);
+  text-align: center;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.multi-upload__drop-zone--active {
+  background-color: var(--color-offset);
+  border-color: var(--color-primary);
+}
+
+.multi-upload__drop-text {
+  color: var(--color-on-offset);
+  font: var(--font-body);
+  margin: 0;
+}
+
+.multi-upload__browse {
+  cursor: pointer;
+}
+
+.multi-upload__input {
+  position: absolute;
+  clip: rect(0 0 0 0);
+}
+
+/* File list */
+.multi-upload__file-list {
+  list-style: none;
+  margin-block: var(--space-m) 0;
+  padding: 0;
+}
+
+.multi-upload__file-item {
+  align-items: center;
+  border-block-end: var(--border-hairline);
+  display: grid;
+  gap: var(--space-xs) var(--space-s);
+  grid-template-columns: 1fr auto auto auto;
+  padding-block: var(--space-s);
+}
+
+.multi-upload__file-name {
+  font: var(--font-body);
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.multi-upload__file-size {
+  color: var(--color-on-offset);
+  font: var(--font-caption);
+  white-space: nowrap;
+}
+
+/* Progress bar */
+.multi-upload__progress {
+  appearance: none;
+  block-size: 0.5rem;
+  border: none;
+  border-radius: var(--border-radius-small);
+  grid-column: 1 / -1;
+  inline-size: 100%;
+}
+
+.multi-upload__progress::-webkit-progress-bar {
+  background-color: var(--color-offset);
+  border-radius: var(--border-radius-small);
+}
+
+.multi-upload__progress::-webkit-progress-value {
+  background-color: var(--color-primary);
+  border-radius: var(--border-radius-small);
+  transition: inline-size 0.2s;
+}
+
+.multi-upload__progress::-moz-progress-bar {
+  background-color: var(--color-primary);
+  border-radius: var(--border-radius-small);
+}
+
+/* Status indicators */
+.multi-upload__status--success {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.multi-upload__status--error {
+  color: var(--color-error);
+  font: var(--font-caption);
+}
+
+/* Remove button */
+.multi-upload__remove {
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--color-on-offset);
+  cursor: pointer;
+  font-size: 1.25em;
+  line-height: 1;
+  padding: var(--space-2xs);
+}
+
+.multi-upload__remove:hover {
+  color: var(--color-error);
+}
+
+/* Upload button */
+.multi-upload__submit {
+  margin-block-start: var(--space-m);
+}
