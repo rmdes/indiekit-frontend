@@ -93,8 +93,24 @@
       </ul>
     </div>
 
+    {# --- FEDIVERSE --- #}
+    <div class="sidebar__group">
+      <span class="sidebar__group-label">Fediverse</span>
+      <ul class="sidebar__list" role="list">
+        {% for item in items %}{% if item.href and item.text %}
+          {% if "/activitypub" in item.href %}
+          <li class="sidebar__list-item">
+            <a href="{{ item.href }}"{{- attributes(item.attributes) }}>
+              {{- item.text | safe -}}
+            </a>
+          </li>
+          {% endif %}
+        {% endif %}{% endfor %}
+      </ul>
+    </div>
+
     {# --- UNCATEGORIZED (catch-all for future plugins) --- #}
-    {% set knownPaths = ["/posts", "/files", "/microsub", "/webmention", "/blogroll", "/podroll", "/homepage", "/cv", "/github", "/lastfm", "/funkwhale", "/youtube", "/rss"] %}
+    {% set knownPaths = ["/posts", "/files", "/microsub", "/webmention", "/blogroll", "/podroll", "/homepage", "/cv", "/github", "/lastfm", "/funkwhale", "/youtube", "/rss", "/activitypub"] %}
     {% set hasOther = [] %}
     {% for item in items %}{% if item.href and item.text %}
       {% set matched = false %}
