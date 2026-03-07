@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-beta.27](https://github.com/getindiekit/indiekit/compare/v1.0.0-beta.26...v1.0.0-beta.27) (2026-03-07)
+
+
+### Bug Fixes
+
+* **frontend:** dark theme form component styles ([86ec381](https://github.com/getindiekit/indiekit/commit/86ec3819fb9f6b29f677d4981811a9575accb364))
+* **frontend:** update input widths ([09d8236](https://github.com/getindiekit/indiekit/commit/09d82368adbb17f5c0e070711984ca7b946a0a43))
+
+
+
+
+
 # [1.0.0-beta.25](https://github.com/getindiekit/indiekit/compare/v1.0.0-beta.24...v1.0.0-beta.25) (2025-12-24)
 
 
