@@ -103,6 +103,49 @@ export const TextareaFieldComponent = class extends HTMLElement {
       unorderedListStyle: "-",
     });
 
+    // Generate Markdown link syntax (without adding `https:`)
+    // Place cursor within empty brackets for easier URL pasting
+    document.addEventListener(
+      "click",
+      function (event) {
+        const linkButton = event.target?.closest(".link");
+        if (linkButton) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const linkTemplate = `[${editor.codemirror.getSelection()}]()`;
+          editor.codemirror.replaceSelection(linkTemplate);
+          editor.codemirror.focus();
+
+          // Move cursor into the bracket for direct pasting
+          const cursorPosition = editor.codemirror.getCursor();
+          editor.codemirror.setSelection(
+            { line: cursorPosition.line, ch: cursorPosition.ch - 1 },
+            { line: cursorPosition.line, ch: cursorPosition.ch - 1 },
+          );
+        }
+      },
+      { capture: true },
+    );
+
+    // Auto convert clipboard URL to Markdown link syntax when pasting a URL
+    // with a text span highlighted
+    editor.codemirror.on("paste", function (_cm, event) {
+      const selectedText = editor.codemirror.getSelection();
+      if (!selectedText) {
+        return;
+      }
+
+      const pastedText = event.clipboardData?.getData("text/plain") || "";
+      const urlMatch = pastedText.match(/https?:\/\/[^\s]+/);
+
+      if (urlMatch) {
+        event.preventDefault();
+        const link = `[${selectedText}](${urlMatch[0]})`;
+        editor.codemirror.replaceSelection(link);
+      }
+    });
+
     // Restore label behaviour
     /** @type {HTMLTextAreaElement} */
     const $codeMirrorTextarea = this.querySelector(".CodeMirror textarea");
