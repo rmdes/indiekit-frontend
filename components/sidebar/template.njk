@@ -1,6 +1,51 @@
 {% from "../logo/macro.njk" import logo with context %}
 {% set items = opts.navigation.items %}
 {% set renames = { "Reader": "Microsub" } %}
+
+{#
+  Section categorization for multi-site plugin loadouts.
+  Each section defines URL patterns; items whose href contains ANY pattern
+  in a section's list bucket into that section. Sections with zero items
+  collapse (no empty header). Items not matching any known pattern fall
+  into "Other".
+
+  Keep `knownPaths` in sync with the union of all section patterns —
+  it's used by the "Other" catch-all to identify unmatched items.
+#}
+{% set knownPaths = [
+  "/posts", "/files",
+  "/microsub", "/webmention", "/webmention-sender", "/comments",
+  "/blogroll", "/podroll", "/rss",
+  "/homepage", "/cv", "/site-config",
+  "/github", "/lastfm", "/funkwhale", "/youtube",
+  "/activitypub",
+  "/linkedin"
+] %}
+
+{# Reusable section macro: only renders when matched items exist (no empty headers). #}
+{% macro sidebarSection(label, items, patterns, renames) %}
+  {% set sectionItems = [] %}
+  {% for item in items %}{% if item.href and item.text %}
+    {% set isMatch = false %}
+    {% for pattern in patterns %}{% if pattern in item.href %}{% set isMatch = true %}{% endif %}{% endfor %}
+    {% if isMatch %}{% set sectionItems = sectionItems.concat([item]) %}{% endif %}
+  {% endif %}{% endfor %}
+  {% if sectionItems | length > 0 %}
+  <div class="sidebar__group">
+    <span class="sidebar__group-label">{{ label }}</span>
+    <ul class="sidebar__list" role="list">
+      {% for item in sectionItems %}
+      <li class="sidebar__list-item">
+        <a href="{{ item.href }}"{{- attributes(item.attributes) }}>
+          {%- if renames and renames[item.text] %}{{ renames[item.text] }}{% else %}{{ item.text | safe }}{% endif -%}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+{% endmacro %}
+
 <sidebar-nav class="{{ classes("sidebar", opts) }}" aria-label="Main">
   <div class="sidebar__header">
     <a class="sidebar__title u-url" href="{{ opts.url or "/" }}">
@@ -13,110 +58,19 @@
     </button>
   </div>
   <nav class="sidebar__nav">
-    {# --- PUBLISH --- #}
-    <div class="sidebar__group">
-      <span class="sidebar__group-label">Publish</span>
-      <ul class="sidebar__list" role="list">
-        {% for item in items %}{% if item.href and item.text %}
-          {% if "/posts" in item.href or "/files" in item.href %}
-          <li class="sidebar__list-item">
-            <a href="{{ item.href }}"{{- attributes(item.attributes) }}>
-              {{- item.text | safe -}}
-            </a>
-          </li>
-          {% endif %}
-        {% endif %}{% endfor %}
-      </ul>
-    </div>
+    {{ sidebarSection("Publish",       items, ["/posts", "/files"]) }}
+    {{ sidebarSection("Read & Engage", items, ["/microsub", "/webmention", "/webmention-sender", "/comments"], renames) }}
+    {{ sidebarSection("Curate",        items, ["/blogroll", "/podroll", "/rss"]) }}
+    {{ sidebarSection("Build",         items, ["/homepage", "/cv", "/site-config"]) }}
+    {{ sidebarSection("Activity",      items, ["/github", "/lastfm", "/funkwhale", "/youtube"]) }}
+    {{ sidebarSection("Fediverse",     items, ["/activitypub"]) }}
+    {{ sidebarSection("Syndication",   items, ["/linkedin"]) }}
 
-    {# --- READ & ENGAGE --- #}
-    <div class="sidebar__group">
-      <span class="sidebar__group-label">Read & Engage</span>
-      <ul class="sidebar__list" role="list">
-        {% for item in items %}{% if item.href and item.text %}
-          {% if "/microsub" in item.href or "/webmention" in item.href %}
-          <li class="sidebar__list-item">
-            <a href="{{ item.href }}"{{- attributes(item.attributes) }}>
-              {%- if renames[item.text] %}{{ renames[item.text] }}{% else %}{{ item.text | safe }}{% endif -%}
-            </a>
-          </li>
-          {% endif %}
-        {% endif %}{% endfor %}
-      </ul>
-    </div>
-
-    {# --- CURATE --- #}
-    <div class="sidebar__group">
-      <span class="sidebar__group-label">Curate</span>
-      <ul class="sidebar__list" role="list">
-        {% for item in items %}{% if item.href and item.text %}
-          {% if "/blogroll" in item.href or "/podroll" in item.href %}
-          <li class="sidebar__list-item">
-            <a href="{{ item.href }}"{{- attributes(item.attributes) }}>
-              {{- item.text | safe -}}
-            </a>
-          </li>
-          {% endif %}
-        {% endif %}{% endfor %}
-      </ul>
-    </div>
-
-    {# --- BUILD --- #}
-    <div class="sidebar__group">
-      <span class="sidebar__group-label">Build</span>
-      <ul class="sidebar__list" role="list">
-        {% for item in items %}{% if item.href and item.text %}
-          {% if "/homepage" in item.href or "/cv" in item.href %}
-          <li class="sidebar__list-item">
-            <a href="{{ item.href }}"{{- attributes(item.attributes) }}>
-              {{- item.text | safe -}}
-            </a>
-          </li>
-          {% endif %}
-        {% endif %}{% endfor %}
-      </ul>
-    </div>
-
-    {# --- ACTIVITY --- #}
-    <div class="sidebar__group">
-      <span class="sidebar__group-label">Activity</span>
-      <ul class="sidebar__list" role="list">
-        {% for item in items %}{% if item.href and item.text %}
-          {% if "/github" in item.href or "/lastfm" in item.href or "/funkwhale" in item.href or "/youtube" in item.href or "/rss" in item.href %}
-          <li class="sidebar__list-item">
-            <a href="{{ item.href }}"{{- attributes(item.attributes) }}>
-              {{- item.text | safe -}}
-            </a>
-          </li>
-          {% endif %}
-        {% endif %}{% endfor %}
-      </ul>
-    </div>
-
-    {# --- FEDIVERSE --- #}
-    <div class="sidebar__group">
-      <span class="sidebar__group-label">Fediverse</span>
-      <ul class="sidebar__list" role="list">
-        {% for item in items %}{% if item.href and item.text %}
-          {% if "/activitypub" in item.href %}
-          <li class="sidebar__list-item">
-            <a href="{{ item.href }}"{{- attributes(item.attributes) }}>
-              {{- item.text | safe -}}
-            </a>
-          </li>
-          {% endif %}
-        {% endif %}{% endfor %}
-      </ul>
-    </div>
-
-    {# --- UNCATEGORIZED (catch-all for future plugins) --- #}
-    {% set knownPaths = ["/posts", "/files", "/microsub", "/webmention", "/blogroll", "/podroll", "/homepage", "/cv", "/github", "/lastfm", "/funkwhale", "/youtube", "/rss", "/activitypub"] %}
+    {# OTHER: catch-all for items not matching any known pattern (future plugins). #}
     {% set hasOther = [] %}
     {% for item in items %}{% if item.href and item.text %}
       {% set matched = false %}
-      {% for kp in knownPaths %}
-        {% if kp in item.href %}{% set matched = true %}{% endif %}
-      {% endfor %}
+      {% for kp in knownPaths %}{% if kp in item.href %}{% set matched = true %}{% endif %}{% endfor %}
       {% if not matched %}{% set hasOther = hasOther.concat([item]) %}{% endif %}
     {% endif %}{% endfor %}
     {% if hasOther | length > 0 %}
@@ -134,7 +88,7 @@
     </div>
     {% endif %}
 
-    {# --- SYSTEM (hardcoded core pages) --- #}
+    {# SYSTEM: hardcoded core pages, always present (Indiekit installs them unconditionally). #}
     <div class="sidebar__group">
       <span class="sidebar__group-label">System</span>
       <ul class="sidebar__list" role="list">
