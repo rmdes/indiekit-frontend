@@ -35,9 +35,8 @@ indiekit-frontend/
 ├── components/                   # Nunjucks components (form fields, UI widgets)
 ├── styles/                       # Lightning CSS files (admin theme)
 ├── scripts/                      # Client-side JavaScript
-│   ├── admin.js                 # Admin UI interactions
-│   ├── service-worker.js        # Service worker for offline support
-│   └── client-side scripts
+│   ├── app.js                   # Bundle entry (imports components/*/index.js)
+│   └── utils/                   # Shared client-side utilities (e.g. focusable.js)
 ├── locales/                      # i18n translations
 └── assets/                       # Static assets (icons, fonts)
 ```
@@ -64,7 +63,7 @@ Replaced flat navigation with a collapsible vertical sidebar featuring:
 
 ### 3. Service Worker: Stale-While-Revalidate (Commit 157820d)
 
-**File:** `scripts/service-worker.js`
+**File:** `lib/serviceworker.js`
 
 Implemented intelligent caching strategy:
 - Returns cached responses immediately while revalidating in background
@@ -73,7 +72,7 @@ Implemented intelligent caching strategy:
 
 ### 4. Service Worker: Auth/Session Page Bypass (Commit 1d39c01)
 
-**File:** `scripts/service-worker.js`
+**File:** `lib/serviceworker.js`
 
 Service worker now bypasses cache for authentication and session pages (`/auth`, `/session`, etc.):
 - Prevents serving stale login forms
@@ -90,13 +89,13 @@ if (noCacheRoutes.some(route => url.pathname.startsWith(route))) {
 
 ### 5. Service Worker: Cross-Origin Request Handling (Commit 3ba6ca7)
 
-**File:** `scripts/service-worker.js`
+**File:** `lib/serviceworker.js`
 
 Service worker now skips caching for cross-origin requests and properly handles cross-origin fetch failures.
 
 ### 6. Service Worker: Fetch Timeout Hardening (Commit 8800243)
 
-**File:** `scripts/service-worker.js`
+**File:** `lib/serviceworker.js`
 
 When a cached fallback exists, the service worker uses a 5-second timeout on network requests. Without a cache fallback, it waits indefinitely for the network response instead of giving up early.
 
@@ -104,7 +103,7 @@ When a cached fallback exists, the service worker uses a 5-second timeout on net
 
 ### 7. Service Worker: Offline Page Cache Behavior (Commit f7af02f)
 
-**File:** `scripts/service-worker.js`
+**File:** `lib/serviceworker.js`
 
 Removed `clearPagesCache()` on activation. The previous behavior deleted all cached HTML on every service worker update, leaving users offline with nothing. The new behavior keeps cached pages available so users can continue browsing while an update is being pulled.
 
@@ -119,7 +118,7 @@ Sidebar sections now use conditional wrappers:
 
 ### 9. Media Browser Integration (Commits cdc7e00 onwards)
 
-**Files:** `scripts/`, `components/file-input-component.js`
+**Files:** `lib/media-browser.js`, `components/file-input/index.js`
 
 Added modal media browser UI for file/image selection:
 - Browse uploaded media files
@@ -129,12 +128,22 @@ Added modal media browser UI for file/image selection:
 
 ### 10. EasyMDE Enhancements (Commit 157820d)
 
-**File:** `scripts/admin.js`
+**File:** `components/textarea/index.js`
 
 Integrated media browser into EasyMDE markdown editor toolbar:
 - Media browser icon in toolbar
 - Insert selected media with markdown syntax
 - Proper alt text and caption support
+
+### 11. Site Builder Phase 4 primitives (v1.0.0-beta.42)
+
+**Files:** `components/modal-dialog/`, `components/toggle-switch/`, `scripts/utils/focusable.js`
+
+- **modal-dialog** component: native `<dialog>` + `showModal()` (focus trap, Esc, `::backdrop` for free). Openers via `[data-modal-open="<id>"]`, close via `[data-modal-close]`; focus returns to the opener on close. No-JS contract documented in `macro.njk` — consumers must provide a `<noscript>` fallback.
+- **toggle-switch** component: checkbox with `role="switch"` that degrades to a plain checkbox; CSS-drawn track/thumb, optional `data-toggle-submit` form submission.
+- **`scripts/utils/focusable.js`**: shared `focusableSelector` util — single source of truth, fixes add-another's previously inlined selector which had a broken trailing clause (missing `)]`).
+
+Consumed by the site-config composition editor (Site Builder Phase 4).
 
 ## Key Architecture Decisions
 
@@ -201,7 +210,7 @@ npm install @rmdes/indiekit-frontend
 ```json
 {
   "overrides": {
-    "@indiekit/frontend": "npm:@rmdes/indiekit-frontend@^1.0.0-beta.41"
+    "@indiekit/frontend": "npm:@rmdes/indiekit-frontend@^1.0.0-beta.42"
   }
 }
 ```
@@ -221,8 +230,8 @@ application.templateEngine = frontend.templates(application);
 ### Provides to Indiekit Core
 
 - **Nunjucks environment** with template paths from all plugins
-- **CSS bundle** (styles.css) compiled from all plugin stylesheets
-- **JavaScript bundle** (scripts.js) bundled from all plugin scripts
+- **CSS bundle** (served at `/assets/app-<hash>.css`) compiled from `styles/app.css`
+- **JavaScript bundle** (served at `/assets/app-<hash>.js`) bundled from `scripts/app.js`
 - **App icons** generated from theme colors
 
 ### Works With
@@ -242,21 +251,13 @@ application.templateEngine = frontend.templates(application);
 
 Templates are only discoverable if the plugin registers a `views` path. If a plugin doesn't export `views` in its index.js, its templates won't be found.
 
-### 2. Service Worker Doesn't Cache by Default
+### 2. Service Worker is Served by Indiekit Core
 
-The service worker is opt-in. You must include it in your base template:
-
-```nunjucks
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/scripts.js'); // or path to service worker
-  }
-</script>
-```
+The service worker source lives at `lib/serviceworker.js` in this package; `@indiekit/indiekit` reads it, substitutes the current asset paths, and serves it at `/serviceworker.js`, where the admin layout registers it.
 
 ### 3. CSS and JS Bundles are Single Files
 
-All styles and scripts are bundled into single files (styles.css, scripts.js). Large bundles can impact performance. Consider code splitting if the admin interface becomes bloated.
+All styles and scripts are bundled into single files (`/assets/app-<hash>.css`, `/assets/app-<hash>.js`). Large bundles can impact performance. Consider code splitting if the admin interface becomes bloated.
 
 ### 4. Nunjucks Environment is Shared
 
@@ -264,27 +265,25 @@ All plugins use the same Nunjucks environment. Be careful with custom filter nam
 
 ## Development
 
-### Building Styles
+### No Build Step
+
+There is **no build step and no npm scripts** in this package (`package.json` has no `scripts` field). Bundling happens at request time inside `@indiekit/indiekit` via this package's exported functions:
+
+- **`styles()`** (`lib/lightningcss.js`) — Lightning CSS `bundleAsync` on `styles/app.css` (which `@import`s all component stylesheets), minified
+- **`scripts()`** (`lib/esbuild.js`) — esbuild `build()` with `scripts/app.js` as entry point (which imports `components/*/index.js`), bundled and minified in-memory (`write: false`)
+- **`appIcon()`/`shortcutIcon()`** (`lib/sharp.js`) — Sharp-generated icons
+
+`@indiekit/indiekit` serves the resulting bundles at `/assets/app-<hash>.css` and `/assets/app-<hash>.js`, and serves `lib/serviceworker.js` at `/serviceworker.js`.
+
+### Verifying Changes
 
 ```bash
-npm run build:styles
+# Syntax check
+node --check scripts/app.js
+
+# Bundle smoke test (exactly what the runtime does)
+node -e "import('esbuild').then(e => e.build({entryPoints: ['scripts/app.js'], bundle: true, write: false, minify: true}).then(r => console.log('bundle OK', r.outputFiles[0].text.length, 'bytes')))"
 ```
-
-### Building Scripts
-
-```bash
-npm run build:scripts
-```
-
-### Building Icons
-
-```bash
-npm run build:icons
-```
-
-### Development Mode
-
-For development, you typically run `@indiekit/indiekit` which will handle all builds automatically.
 
 ## Testing
 

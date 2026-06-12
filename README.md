@@ -15,7 +15,7 @@ Or via npm overrides (recommended for replacing the default package):
 ```json
 {
   "overrides": {
-    "@indiekit/frontend": "npm:@rmdes/indiekit-frontend@^1.0.0-beta.41"
+    "@indiekit/frontend": "npm:@rmdes/indiekit-frontend@^1.0.0-beta.42"
   }
 }
 ```
