@@ -1,4 +1,4 @@
-const focusableSelector = `button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]`;
+import { focusableSelector } from "../../scripts/utils/focusable.js";
 
 export const AddAnotherComponent = class extends HTMLElement {
   connectedCallback() {

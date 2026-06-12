@@ -1,0 +1,12 @@
+<toggle-switch>
+  <label class="toggle-switch">
+    <input type="checkbox" role="switch" class="toggle-switch__input"
+      name="{{ opts.name }}"
+      value="{{ opts.value | default('on') }}"
+      {%- if opts.id %} id="{{ opts.id }}"{% endif %}
+      {%- if opts.checked %} checked{% endif %}
+      {%- if opts.submitOnChange %} data-toggle-submit{% endif %}>
+    <span class="toggle-switch__track" aria-hidden="true"></span>
+    <span class="toggle-switch__label">{{ opts.label }}</span>
+  </label>
+</toggle-switch>

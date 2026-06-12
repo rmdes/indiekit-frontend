@@ -1,0 +1,20 @@
+{% from "../button/macro.njk" import button with context %}
+<modal-dialog id="{{ opts.id }}">
+  <dialog class="modal-dialog" aria-labelledby="{{ opts.id }}-title">
+    <div class="modal-dialog__header">
+      <h2 class="modal-dialog__title" id="{{ opts.id }}-title">{{ opts.title }}</h2>
+      {{ button({
+        classes: "modal-dialog__close button--secondary",
+        type: "button",
+        icon: "cross",
+        iconText: opts.closeLabel or "Close",
+        attributes: {
+          "data-modal-close": true
+        }
+      }) }}
+    </div>
+    <div class="modal-dialog__body">
+      {{ caller() if caller else opts.html | safe }}
+    </div>
+  </dialog>
+</modal-dialog>
