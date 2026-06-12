@@ -145,6 +145,14 @@ Integrated media browser into EasyMDE markdown editor toolbar:
 
 Consumed by the site-config composition editor (Site Builder Phase 4).
 
+### 12. Service Worker: Preview Page Bypass (v1.0.0-beta.44)
+
+**File:** `lib/serviceworker.js`
+
+Extended the auth/session cache bypass regex to also cover `/preview` (`/^\/(auth|session|preview)(?:\/|$)/`) in BOTH places it appears: the fetch handler (network-only respondWith) and `clearAuthSessionEntries()` (activate-time purge).
+
+**Why:** Site Builder Phase 5 serves true-preview pages at `/preview/<token>/` rendered by Eleventy. The composition editor embeds the preview in an iframe and polls a `data-preview-revision` attribute until a fresh build lands. The SW's network-first-with-5s-timeout HTML strategy would otherwise cache preview pages and can serve stale entries on slow networks, breaking revision polling. Preview tokens also rotate on publish, so cached entries would be dead weight in the 50-entry pages cache.
+
 ## Key Architecture Decisions
 
 ### Nunjucks as Template Engine
