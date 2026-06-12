@@ -1,0 +1,15 @@
+{#
+  Modal dialog component (native <dialog> + showModal()).
+
+  Openers: any `<button data-modal-open="{id}">` on the page opens the
+  dialog with that `id`. Elements with `data-modal-close` inside the
+  dialog close it.
+
+  No-JS contract: openers and the close button ONLY work with JavaScript
+  enabled — without JS the <dialog> never opens. Consumers MUST provide a
+  <noscript> fallback for the dialog content (the site-config composition
+  editor does).
+#}
+{% macro modalDialog(opts) %}
+  {%- include "./template.njk" -%}
+{% endmacro %}

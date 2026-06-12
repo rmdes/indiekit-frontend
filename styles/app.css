@@ -45,6 +45,7 @@
 @import url("../components/logo/styles.css");
 @import url("../components/main/styles.css");
 @import url("../components/mention/styles.css");
+@import url("../components/modal-dialog/styles.css");
 @import url("../components/multi-upload/styles.css");
 @import url("../components/navigation/styles.css");
 @import url("../components/notification-banner/styles.css");
@@ -61,6 +62,7 @@
 @import url("../components/tag/styles.css");
 @import url("../components/tag-input/styles.css");
 @import url("../components/textarea/styles.css");
+@import url("../components/toggle-switch/styles.css");
 @import url("../components/user/styles.css");
 @import url("../components/warning-text/styles.css");
 @import url("../components/widget/styles.css");

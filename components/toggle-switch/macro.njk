@@ -1,0 +1,9 @@
+{#
+  Toggle switch component. An accessible switch (checkbox with
+  `role="switch"`) that degrades to a plain checkbox without CSS/JS.
+  Pass `submitOnChange: true` to submit the containing form on change
+  (requires JavaScript; without JS the form submits normally).
+#}
+{% macro toggleSwitch(opts) %}
+  {%- include "./template.njk" -%}
+{% endmacro %}
