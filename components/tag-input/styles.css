@@ -161,7 +161,10 @@ tag-input-field {
 }
 
 /* Category typeahead listbox (Category Governance, Layer 1) */
-.tag-input {
+/* Anchor the popup to the host, not the .tag-input box: that box has
+   overflow-x:auto (chip scroll), which makes overflow-y compute to auto too — a
+   scroll container that would clip a popup anchored to its bottom edge. */
+tag-input-field {
   position: relative;
 }
 

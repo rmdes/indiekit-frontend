@@ -101,7 +101,11 @@ function setupCategorySuggestions($component, $input, tagInput, suggestionsUrl) 
   $listbox.className = "tag-input__listbox";
   $listbox.setAttribute("role", "listbox");
   $listbox.hidden = true;
-  ($component.querySelector(".tag-input") || $component).append($listbox);
+  // Anchor the popup to the component HOST, not the `.tag-input` box: that box has
+  // `overflow-x: auto` (horizontal chip scroll), which per CSS computes overflow-y
+  // to `auto` too — a scroll container that would clip a popup anchored to its
+  // bottom edge. The host (`tag-input-field`, display:block, no overflow) doesn't.
+  $component.append($listbox);
 
   // Promote the input to a combobox (WAI-ARIA combobox + listbox popup).
   $input.setAttribute("role", "combobox");
