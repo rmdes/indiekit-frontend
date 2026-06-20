@@ -159,3 +159,36 @@ tag-input-field {
     background-color: var(--color-primary-variant);
   }
 }
+
+/* Category typeahead listbox (Category Governance, Layer 1) */
+.tag-input {
+  position: relative;
+}
+
+.tag-input__listbox {
+  position: absolute;
+  z-index: 10;
+  inset-block-start: 100%;
+  inset-inline: 0;
+  margin-block: 0.25rem 0;
+  padding: 0;
+  list-style: none;
+  max-block-size: 14rem;
+  overflow-y: auto;
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--border-radius-small);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
+}
+
+.tag-input__option {
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+}
+
+.tag-input__option--active,
+.tag-input__option:hover {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
