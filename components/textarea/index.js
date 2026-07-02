@@ -144,8 +144,8 @@ export const TextareaFieldComponent = class extends HTMLElement {
   /**
    * Upload file
    * @param {object} file - File
-   * @param {Function} onSuccess - Success callback
-   * @param {Function} onError - Error callback
+   * @param {function(string): void} onSuccess - Success callback
+   * @param {function(string): void} onError - Error callback
    * @returns {Promise<string>} - File URL or error message
    */
   async uploadFile(file, onSuccess, onError) {
