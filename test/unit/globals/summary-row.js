@@ -15,9 +15,9 @@ describe("frontend/lib/globals/summary-row", () => {
     });
 
     assert.equal(result[0].key.text, "array");
-    assert.match(result[0].value.text, /^<pre class="language-js">/);
+    assert.match(result[0].value.text, /^<pre>/);
     assert.match(result[1].value.text, /^<code class="token boolean">/);
-    assert.match(result[2].value.text, /^<pre class="language-js">/);
+    assert.match(result[2].value.text, /^<pre>/);
     assert.match(result[3].value.text, /^<code class="token string">/);
   });
 });
