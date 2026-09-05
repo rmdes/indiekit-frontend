@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/no-undefined-types */
 import { wrapElement } from "../../lib/utils/wrap-element.js";
 
 export const GeoInputFieldComponent = class extends HTMLElement {
@@ -67,7 +66,9 @@ export const GeoInputFieldComponent = class extends HTMLElement {
    * @param {GeolocationPositionError} error - Position error
    */
   positionError(error) {
-    /** @satisfies {HTMLButtonElement} */
+    /**
+     * @satisfies {HTMLButtonElement}
+     */
     const $button = this.querySelector(".button");
 
     $button.disabled = true;

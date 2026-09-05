@@ -62,7 +62,9 @@ export const ErrorSummaryComponent = class extends HTMLElement {
 
     const fragment = this.getFragmentFromUrl($target.href);
 
-    /** @satisfies {HTMLInputElement} */
+    /**
+     * @satisfies {HTMLInputElement}
+     */
     const $input = document.querySelector(`#${fragment}`);
     if (!$input) {
       return false;
@@ -105,7 +107,6 @@ export const ErrorSummaryComponent = class extends HTMLElement {
    */
   getAssociatedLegendOrLabel($input) {
     const $fieldset = $input.closest("fieldset");
-    const inputId = $input.getAttribute("id");
 
     if ($fieldset) {
       const $$legends = $fieldset.querySelectorAll("legend");
@@ -139,8 +140,11 @@ export const ErrorSummaryComponent = class extends HTMLElement {
       }
     }
 
+    const inputId = $input.getAttribute("id");
+
     return (
-      document.querySelector(`label[for="${inputId}"]`) ||
+      (inputId &&
+        document.querySelector(`label[for="${CSS.escape(inputId)}"]`)) ||
       $input.closest("label")
     );
   }

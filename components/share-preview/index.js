@@ -13,17 +13,19 @@ export const SharePreviewComponent = class extends HTMLElement {
    * Resize parent window to fit output preview and input form
    */
   resizeWindow() {
-    if (this.$form) {
-      const { scrollWidth, scrollHeight } = this.$form;
-
-      const chromeWidth = globalThis.outerWidth - window.innerWidth;
-      const chromeHeight = globalThis.outerHeight - window.innerHeight;
-
-      const width = scrollWidth + chromeWidth;
-      const height = scrollHeight + chromeHeight;
-
-      window.resizeTo(width, height);
+    if (!this.$form) {
+      return;
     }
+
+    const { scrollWidth, scrollHeight } = this.$form;
+
+    const chromeWidth = outerWidth - window.innerWidth;
+    const chromeHeight = outerHeight - window.innerHeight;
+
+    const width = scrollWidth + chromeWidth;
+    const height = scrollHeight + chromeHeight;
+
+    window.resizeTo(width, height);
   }
 
   /**
@@ -31,8 +33,11 @@ export const SharePreviewComponent = class extends HTMLElement {
    * @param {HTMLOutputElement} $outputElement - Output element
    */
   updatePreview($outputElement) {
-    const { classList, dataset, htmlFor } = $outputElement;
-    const $inputElement = document.querySelector(`[name=${htmlFor}]`);
+    const { classList, dataset } = $outputElement;
+    const htmlFor = $outputElement.htmlFor.value;
+    const $inputElement = document.querySelector(
+      `[name=${CSS.escape(htmlFor)}]`,
+    );
 
     if (!$inputElement) {
       return;

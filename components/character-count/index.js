@@ -29,29 +29,6 @@ export const CharacterCountComponent = class extends HTMLElement {
     this.$visibleCountMessage.setAttribute("aria-hidden", "true");
   }
 
-  connectedCallback() {
-    this.i18nChar = this.getAttribute("i18n-char") || `%s character`;
-    this.i18nChars = this.getAttribute("i18n-chars") || `%s characters`;
-    this.i18nWord = this.getAttribute("i18n-word") || `%s word`;
-    this.i18nWords = this.getAttribute("i18n-words") || `%s words`;
-
-    this.$textarea = this.querySelector("textarea");
-    this.$textarea.addEventListener("keyup", this.#handleKeyUp.bind(this));
-    this.$textarea.addEventListener("focus", this.#handleFocus.bind(this));
-    this.$textarea.addEventListener("blur", this.#handleBlur.bind(this));
-    window.addEventListener("pageshow", this.#updateCountMessages.bind(this));
-    this.#updateCountMessages();
-
-    this.$textareaDescription = this.querySelector(
-      `#${this.$textarea.id}-info`,
-    );
-    this.$textareaDescription.classList.add("-!-visually-hidden");
-    this.$textareaDescription.insertAdjacentElement(
-      "afterend",
-      this.$visibleCountMessage,
-    );
-  }
-
   /**
    * Update visible character counter and keep track of when the last update
    * happened for each keypress
@@ -77,7 +54,7 @@ export const CharacterCountComponent = class extends HTMLElement {
    * @access private
    */
   #handleFocus() {
-    this.valueChecker = globalThis.setInterval(() => {
+    this.valueChecker = setInterval(() => {
       if (
         !this.lastInputTimestamp ||
         Date.now() - 500 >= this.lastInputTimestamp
@@ -93,7 +70,7 @@ export const CharacterCountComponent = class extends HTMLElement {
    */
   #handleBlur() {
     if (this.valueChecker) {
-      globalThis.clearInterval(this.valueChecker);
+      clearInterval(this.valueChecker);
     }
   }
 
@@ -102,10 +79,12 @@ export const CharacterCountComponent = class extends HTMLElement {
    * @access private
    */
   #updateIfValueChanged() {
-    if (this.$textarea.value !== this.lastInputValue) {
-      this.lastInputValue = this.$textarea.value;
-      this.#updateCountMessages();
+    if (this.$textarea.value === this.lastInputValue) {
+      return;
     }
+
+    this.lastInputValue = this.$textarea.value;
+    this.#updateCountMessages();
   }
 
   /**
@@ -138,11 +117,11 @@ export const CharacterCountComponent = class extends HTMLElement {
    * Count number of characters (or words) in given string
    * @access private
    * @param {string} string - The text to count the characters of
-   * @param {boolean} [countWords] - Count words instead of characters
+   * @param {boolean} [shouldCountWords] - Count words instead of characters
    * @returns {number} the number of characters (or words) in the text
    */
-  #count(string, countWords = false) {
-    if (countWords) {
+  #count(string, shouldCountWords = false) {
+    if (shouldCountWords) {
       // Matches consecutive non-whitespace characters up to a word boundary
       const tokens = string.match(/\S+\b/g) ?? [];
       return tokens.length;
@@ -181,5 +160,28 @@ export const CharacterCountComponent = class extends HTMLElement {
     }
 
     return `${characterCount}, ${wordCount}`;
+  }
+
+  connectedCallback() {
+    this.i18nChar = this.getAttribute("i18n-char") || `%s character`;
+    this.i18nChars = this.getAttribute("i18n-chars") || `%s characters`;
+    this.i18nWord = this.getAttribute("i18n-word") || `%s word`;
+    this.i18nWords = this.getAttribute("i18n-words") || `%s words`;
+
+    this.$textarea = this.querySelector("textarea");
+    this.$textarea.addEventListener("keyup", this.#handleKeyUp.bind(this));
+    this.$textarea.addEventListener("focus", this.#handleFocus.bind(this));
+    this.$textarea.addEventListener("blur", this.#handleBlur.bind(this));
+    window.addEventListener("pageshow", this.#updateCountMessages.bind(this));
+    this.#updateCountMessages();
+
+    this.$textareaDescription = this.querySelector(
+      `#${this.$textarea.id}-info`,
+    );
+    this.$textareaDescription.classList.add("-!-visually-hidden");
+    this.$textareaDescription.insertAdjacentElement(
+      "afterend",
+      this.$visibleCountMessage,
+    );
   }
 };

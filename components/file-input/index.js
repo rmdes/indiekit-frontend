@@ -7,9 +7,13 @@ export const FileInputFieldController = class extends HTMLElement {
   connectedCallback() {
     this.endpoint = this.getAttribute("endpoint");
 
-    /** @type {HTMLElement} */
+    /**
+     * @type {HTMLElement}
+     */
     this.$uploadProgress = this.querySelector(".file-input__progress");
-    /** @type {HTMLInputElement} */
+    /**
+     * @type {HTMLInputElement}
+     */
     this.$fileInputPath = this.querySelector(".file-input__path");
     this.$fileInputPicker = this.querySelector(".file-input__picker");
     this.$fileInputPickerTemplate = this.querySelector("#file-input-picker");
@@ -50,10 +54,12 @@ export const FileInputFieldController = class extends HTMLElement {
     });
 
     $fileInputButton.addEventListener("keyup", (event) => {
-      if (["Spacebar", " "].includes(event.key)) {
-        event.preventDefault();
-        event.target.click();
+      if (!["Spacebar", " "].includes(event.key)) {
+        return;
       }
+
+      event.preventDefault();
+      event.target.click();
     });
 
     // Add event to file input
