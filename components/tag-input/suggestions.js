@@ -18,11 +18,11 @@ const DEFAULT_LIMIT = 8;
  */
 export function buildSuggestionsUrl(base, term, limit = DEFAULT_LIMIT) {
   const separator = base.includes("?") ? "&" : "?";
-  const params = new URLSearchParams({
+  const parameters = new URLSearchParams({
     filter: String(term).trim().toLowerCase(),
     limit: String(limit),
   });
-  return `${base}${separator}${params.toString()}`;
+  return `${base}${separator}${parameters.toString()}`;
 }
 
 /**
@@ -39,7 +39,8 @@ export function filterSuggestions(suggestions, selected, max = DEFAULT_LIMIT) {
   );
   const seen = new Set();
   const out = [];
-  for (const suggestion of suggestions || []) {
+  const candidates = suggestions || [];
+  for (const suggestion of candidates) {
     if (typeof suggestion !== "string") continue;
     const key = suggestion.trim().toLowerCase();
     if (!key || taken.has(key) || seen.has(key)) continue;

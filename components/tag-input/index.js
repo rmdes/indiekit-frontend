@@ -3,7 +3,7 @@ import TagInput from "@accessible-components/tag-input";
 import { buildSuggestionsUrl, filterSuggestions } from "./suggestions.js";
 
 const SUGGESTIONS_DEBOUNCE_MS = 160;
-let suggestionInstanceCount = 0;
+const suggestionInstance = { count: 0 };
 
 export const TagInputFieldComponent = class extends HTMLElement {
   connectedCallback() {
@@ -16,7 +16,7 @@ export const TagInputFieldComponent = class extends HTMLElement {
     // Typeahead source (Category Governance, Layer 1). Read BEFORE the original
     // input is removed below. Absent → the field stays a plain tag input, so the
     // feature is opt-in per field via the `data-suggestions` attribute.
-    const suggestionsUrl = this.$replacedInput.getAttribute("data-suggestions");
+    const suggestionsUrl = this.$replacedInput.dataset.suggestions;
 
     const tags = this.value ? this.value.split(",") : [];
 
@@ -96,8 +96,13 @@ export const TagInputFieldComponent = class extends HTMLElement {
  * @param {object} tagInput - the @accessible-components/tag-input instance
  * @param {string} suggestionsUrl - base query URL, e.g. "/micropub?q=category"
  */
-function setupCategorySuggestions($component, $input, tagInput, suggestionsUrl) {
-  const uid = `tag-suggest-${++suggestionInstanceCount}`;
+function setupCategorySuggestions(
+  $component,
+  $input,
+  tagInput,
+  suggestionsUrl,
+) {
+  const uid = `tag-suggest-${++suggestionInstance.count}`;
   const listboxId = `${uid}-listbox`;
 
   const $listbox = document.createElement("ul");
@@ -125,7 +130,9 @@ function setupCategorySuggestions($component, $input, tagInput, suggestionsUrl) 
 
   const currentTags = () =>
     (tagInput.getTags?.() || []).map((tag) =>
-      typeof tag === "string" ? tag : (tag && (tag.value ?? tag.label ?? tag.name)) || "",
+      typeof tag === "string"
+        ? tag
+        : (tag && (tag.value ?? tag.label ?? tag.name)) || "",
     );
 
   const optionId = (index) => `${uid}-opt-${index}`;
@@ -151,11 +158,11 @@ function setupCategorySuggestions($component, $input, tagInput, suggestionsUrl) 
     const items = [...$listbox.children];
     if (items.length === 0) return;
     activeIndex = (index + items.length) % items.length;
-    items.forEach((item, i) => {
-      const isActive = i === activeIndex;
+    for (const [index_, item] of items.entries()) {
+      const isActive = index_ === activeIndex;
       item.classList.toggle("tag-input__option--active", isActive);
       item.setAttribute("aria-selected", isActive ? "true" : "false");
-    });
+    }
     $input.setAttribute("aria-activedescendant", optionId(activeIndex));
     items[activeIndex].scrollIntoView({ block: "nearest" });
   };
@@ -205,7 +212,10 @@ function setupCategorySuggestions($component, $input, tagInput, suggestionsUrl) 
     const term = $input.value.trim();
     clearTimeout(debounceTimer);
     if (!term) return close();
-    debounceTimer = setTimeout(() => fetchSuggestions(term), SUGGESTIONS_DEBOUNCE_MS);
+    debounceTimer = setTimeout(
+      () => fetchSuggestions(term),
+      SUGGESTIONS_DEBOUNCE_MS,
+    );
   });
 
   // Capture phase so this runs BEFORE the library's own Enter-to-add handler —
@@ -216,31 +226,36 @@ function setupCategorySuggestions($component, $input, tagInput, suggestionsUrl) 
     (event) => {
       if ($listbox.hidden) return;
       switch (event.key) {
-        case "ArrowDown":
+        case "ArrowDown": {
           event.preventDefault();
           setActive(activeIndex + 1);
           break;
-        case "ArrowUp":
+        }
+        case "ArrowUp": {
           event.preventDefault();
           setActive(activeIndex - 1);
           break;
-        case "Enter":
+        }
+        case "Enter": {
           if (activeIndex >= 0) {
             event.preventDefault();
             event.stopPropagation();
             select(options[activeIndex]);
           }
           break;
-        case "Escape":
+        }
+        case "Escape": {
           event.preventDefault();
           event.stopPropagation();
           close();
           break;
-        default:
+        }
+        default: {
           break;
+        }
       }
     },
-    true,
+    { capture: true },
   );
 
   // Close after focus leaves — deferred so a mousedown-select can win first.

@@ -1,5 +1,6 @@
-import { test } from "node:test";
 import assert from "node:assert/strict";
+import { test } from "node:test";
+
 import { buildSuggestionsUrl, filterSuggestions } from "./suggestions.js";
 
 // Category Governance, Layer 1 — post-form category typeahead (pure helpers).
@@ -28,13 +29,19 @@ test("buildSuggestionsUrl: encodes special characters in the term", () => {
 
 test("filterSuggestions: drops already-selected tags (case-insensitive)", () => {
   assert.deepEqual(
-    filterSuggestions(["RSS", "IndieWeb", "ActivityPub"], ["rss", "activitypub"]),
+    filterSuggestions(
+      ["RSS", "IndieWeb", "ActivityPub"],
+      ["rss", "activitypub"],
+    ),
     ["IndieWeb"],
   );
 });
 
 test("filterSuggestions: de-dupes case-insensitively, preserves first casing + order", () => {
-  assert.deepEqual(filterSuggestions(["RSS", "rss", "IndieWeb"], []), ["RSS", "IndieWeb"]);
+  assert.deepEqual(filterSuggestions(["RSS", "rss", "IndieWeb"], []), [
+    "RSS",
+    "IndieWeb",
+  ]);
 });
 
 test("filterSuggestions: caps at max", () => {
@@ -42,9 +49,11 @@ test("filterSuggestions: caps at max", () => {
 });
 
 test("filterSuggestions: ignores non-strings + empties defensively", () => {
-  assert.deepEqual(filterSuggestions(["RSS", "", null, 5, "  "], []), ["RSS"]);
+  assert.deepEqual(filterSuggestions(["RSS", "", undefined, 5, "  "], []), [
+    "RSS",
+  ]);
 });
 
 test("filterSuggestions: tolerates missing arrays", () => {
-  assert.deepEqual(filterSuggestions(undefined, undefined), []);
+  assert.deepEqual(filterSuggestions(), []);
 });

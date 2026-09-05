@@ -7,6 +7,6 @@ export const focusableSelector = [
   'input:not([disabled]):not([type="hidden"])',
   "select:not([disabled])",
   "textarea:not([disabled])",
-  'a[href]',
+  "a[href]",
   '[tabindex]:not([tabindex="-1"])',
 ].join(", ");

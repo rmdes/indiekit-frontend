@@ -22,7 +22,7 @@ export const SidebarComponent = class extends HTMLElement {
       }
     });
 
-    this.mediaQuery = window.matchMedia("(width >= 48rem)");
+    this.mediaQuery = matchMedia("(width >= 48rem)");
     this.mediaQuery.addEventListener("change", (event) => {
       if (event.matches && this.classList.contains("sidebar--open")) {
         this.close();

@@ -13,7 +13,9 @@
   justify-content: center;
   padding: var(--space-xl);
   text-align: center;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
 }
 
 .multi-upload__drop-zone--active {

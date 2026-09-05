@@ -2,7 +2,7 @@ import { focusableSelector } from "../../scripts/utils/focusable.js";
 
 export const ModalDialogComponent = class extends HTMLElement {
   connectedCallback() {
-    this.$opener = null;
+    this.$opener = undefined;
 
     // HOTFIX (beta.43): all child lookups are LAZY and opener/close handling
     // is DELEGATED. Production showed connectedCallback firing on an element
@@ -16,7 +16,7 @@ export const ModalDialogComponent = class extends HTMLElement {
 
     document.addEventListener("click", (event) => {
       const $opener = event.target.closest?.(
-        `[data-modal-open="${this.id}"]`,
+        `[data-modal-open="${CSS.escape(this.id)}"]`,
       );
       if ($opener) {
         this.open($opener);
@@ -32,7 +32,9 @@ export const ModalDialogComponent = class extends HTMLElement {
     });
   }
 
-  /** The native dialog element — looked up lazily, never cached at connect. */
+  /**
+  The native dialog element — looked up lazily, never cached at connect.
+   */
   get dialog() {
     return this.querySelector("dialog");
   }

@@ -249,16 +249,16 @@ export const TextareaFieldComponent = class extends HTMLElement {
     $floating.setAttribute("role", "toolbar");
     $floating.setAttribute("aria-label", "Formatting");
 
-    for (const btn of floatingToolbarButtons) {
+    for (const button_ of floatingToolbarButtons) {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = `floating-btn floating-btn--${btn.name}`;
-      button.title = btn.title;
-      button.append(createButtonSvgElement(btn.name));
+      button.className = `floating-btn floating-btn--${button_.name}`;
+      button.title = button_.title;
+      button.append(createButtonSvgElement(button_.name));
       button.addEventListener("mousedown", (event) => {
         // Prevent mousedown from stealing focus/clearing selection
         event.preventDefault();
-        EasyMDE[btn.action](editor);
+        EasyMDE[button_.action](editor);
       });
       $floating.append(button);
     }
@@ -285,13 +285,15 @@ export const TextareaFieldComponent = class extends HTMLElement {
     const $cmScroll = this.querySelector(".CodeMirror-scroll");
     if ($cmScroll) {
       $cmScroll.addEventListener("scroll", () => {
-        if (this._$floatingToolbar.classList.contains("is-visible")) {
-          const selection = cm.getSelection();
-          if (selection && selection.length > 0) {
-            this._showFloatingToolbar(cm);
-          } else {
-            this._hideFloatingToolbar();
-          }
+        if (!this._$floatingToolbar.classList.contains("is-visible")) {
+          return;
+        }
+
+        const selection = cm.getSelection();
+        if (selection && selection.length > 0) {
+          this._showFloatingToolbar(cm);
+        } else {
+          this._hideFloatingToolbar();
         }
       });
     }
