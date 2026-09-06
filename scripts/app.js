@@ -1,3 +1,5 @@
+import { highlightAll } from "microlighter";
+
 import { AddAnotherComponent } from "../components/add-another/index.js";
 import { CheckboxesFieldComponent } from "../components/checkboxes/index.js";
 import { ErrorSummaryComponent } from "../components/error-summary/index.js";
@@ -27,3 +29,5 @@ customElements.define("sidebar-nav", SidebarComponent);
 customElements.define("tag-input-field", TagInputFieldComponent);
 customElements.define("textarea-field", TextareaFieldComponent);
 customElements.define("toggle-switch", ToggleSwitchComponent);
+
+highlightAll();
