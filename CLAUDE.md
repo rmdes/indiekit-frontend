@@ -81,11 +81,13 @@ Service worker now bypasses cache for authentication and session pages (`/auth`,
 
 **Code pattern:**
 ```javascript
-const noCacheRoutes = ['/auth', '/session', '/login'];
-if (noCacheRoutes.some(route => url.pathname.startsWith(route))) {
-  return fetch(request); // Always fetch from network
+if (/^\/(auth|session|preview)(?:\/|$)/.test(requestUrl.pathname)) {
+  event.respondWith(fetch(request));
+  return;
 }
 ```
+
+On activate, `clearAuthSessionEntries()` deletes any `/auth`, `/session` or `/preview` entries left in the `pages` cache by earlier worker versions.
 
 ### 5. Service Worker: Cross-Origin Request Handling (Commit 3ba6ca7)
 
@@ -105,7 +107,7 @@ When a cached fallback exists, the service worker uses a 5-second timeout on net
 
 **File:** `lib/serviceworker.js`
 
-Removed `clearPagesCache()` on activation. The previous behavior deleted all cached HTML on every service worker update, leaving users offline with nothing. The new behavior keeps cached pages available so users can continue browsing while an update is being pulled.
+The `activate` handler does not clear the `pages` cache (upstream never had a `clearPagesCache()`; the fork briefly did). Stale cached pages are the fallback when the network is slow right after a deploy, and the network-first fetch strategy refreshes each entry on the next successful navigation. The worker no longer posts an `SW_UPDATED` message to force a reload in every open tab: that discarded unsaved drafts, and `skipWaiting()` + `clients.claim()` already make the new worker take over on the next navigation.
 
 ### 8. Sidebar: Conditional Section Wrappers (Commit 500900e, v1.0.0-beta.41)
 

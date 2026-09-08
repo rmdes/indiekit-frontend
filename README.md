@@ -71,7 +71,7 @@ Enable it in your base template:
 ```html
 <script>
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/scripts.js');
+    navigator.serviceWorker.register('/serviceworker.js');
   }
 </script>
 ```
