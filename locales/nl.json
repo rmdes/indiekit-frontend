@@ -39,6 +39,10 @@
     "page": "pagina",
     "previous": "Vorige %s"
   },
+  "serviceworker": {
+    "reload": "Reload",
+    "updated": "A new version of Indiekit is available."
+  },
   "skipLink": {
     "text": "Skip naar content"
   },

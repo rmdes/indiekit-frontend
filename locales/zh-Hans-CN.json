@@ -39,6 +39,10 @@
     "page": "页",
     "previous": "前 %s"
   },
+  "serviceworker": {
+    "reload": "Reload",
+    "updated": "A new version of Indiekit is available."
+  },
   "skipLink": {
     "text": "跳到内容"
   },

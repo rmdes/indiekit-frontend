@@ -39,6 +39,10 @@
     "page": "stranica",
     "previous": "Prethodni %s"
   },
+  "serviceworker": {
+    "reload": "Reload",
+    "updated": "A new version of Indiekit is available."
+  },
   "skipLink": {
     "text": "Preskoči na sadržaj"
   },

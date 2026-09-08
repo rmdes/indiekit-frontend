@@ -39,6 +39,10 @@
     "page": "पृष्ठ",
     "previous": "पिछला %s"
   },
+  "serviceworker": {
+    "reload": "Reload",
+    "updated": "A new version of Indiekit is available."
+  },
   "skipLink": {
     "text": "कॉन्टेंट पर जाएं"
   },

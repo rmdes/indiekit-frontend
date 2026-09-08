@@ -52,6 +52,10 @@
     "selected": "{{tag}} {{name}} selected. Press enter to edit, delete to delete.",
     "updated": "{{tag}} updated to {{name}}."
   },
+  "serviceworker": {
+    "reload": "Reload",
+    "updated": "A new version of Indiekit is available."
+  },
   "skipLink": {
     "text": "Skip to content"
   },

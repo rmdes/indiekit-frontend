@@ -100,6 +100,17 @@
   text: (error if error) or (success if success) or notice,
   details: error.stack if error
 }) if error or success or notice }}
+<notification-banner class="notification-banner" type="message" role="region" aria-labelledby="update-banner-title" id="update-banner" hidden>
+  <div class="notification-banner__container -!-container">
+    <h2 class="notification-banner__title" id="update-banner-title">{{ __("important") }}</h2>
+    <p class="notification-banner__text">{{ __("serviceworker.updated") }}</p>
+    {{ button({
+      classes: "button--small notification-banner__action",
+      text: __("serviceworker.reload"),
+      attributes: { "data-update-reload": true }
+    }) | indent(4) }}
+  </div>
+</notification-banner>
 {{- backLink({
   href: back.href or back,
   text: back.text
@@ -124,6 +135,20 @@
 {% endblock %}
 <script type="module">
   if (navigator.serviceWorker) {
+    // A controller that changes while one was already in charge means a new
+    // build took over (skipWaiting + clients.claim). Offer a reload instead of
+    // forcing one, so an unsaved draft is not thrown away. On first install
+    // there was no controller before, so nothing is shown.
+    const hadController = Boolean(navigator.serviceWorker.controller);
+    const updateBanner = document.querySelector("#update-banner");
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (hadController) {
+        updateBanner.hidden = false;
+      }
+    });
+    updateBanner
+      .querySelector("[data-update-reload]")
+      .addEventListener("click", () => window.location.reload());
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("/serviceworker.js", {
         scope: "/"

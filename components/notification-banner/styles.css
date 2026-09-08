@@ -35,6 +35,10 @@ notification-banner {
   --prose-font: var(--font-caption);
 }
 
+.notification-banner__action {
+  margin-block-start: var(--space-s);
+}
+
 .notification-banner__details {
   --color-outline: currentcolor;
   --font-label: var(--font-caption);
