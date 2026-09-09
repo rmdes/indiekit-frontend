@@ -5,6 +5,14 @@ notification-banner {
   color: var(--color-on-notification);
   display: block;
 
+  /* `display` here is an author rule, and any author rule beats the user
+     agent's `[hidden] { display: none }` regardless of specificity — so
+     without this, a banner rendered with the hidden attribute is shown
+     anyway. Restore the attribute's meaning. */
+  &[hidden] {
+    display: none;
+  }
+
   &[type="error"] {
     background-color: var(--color-error);
     color: var(--color-on-error);
