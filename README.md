@@ -46,7 +46,7 @@ This fork adds the following enhancements to the upstream package:
 - Grouped menu items (Main, Tools, Settings, Fediverse)
 - Collapsible sections
 - Better mobile responsiveness
-- Alpine.js-powered interactivity
+- Alpine.js-powered interactivity (bundled into the app script; no CDN)
 
 ## What This Package Provides
 

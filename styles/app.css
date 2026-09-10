@@ -75,3 +75,8 @@
 @import url("./vendor/codemirror.css");
 @import url("./vendor/easy-markdown-editor.css");
 @import url("~microlighter/themes/github.css");
+
+/* Alpine (bundled in scripts/app.js): hide bound markup until it initialises */
+[x-cloak] {
+  display: none !important;
+}

@@ -43,6 +43,7 @@
     "@accessible-components/tag-input": "^0.2.0",
     "@indiekit/error": "^1.0.0-beta.28",
     "@indiekit/util": "^1.0.0-beta.29",
+    "alpinejs": "^3.17.2",
     "color": "^5.0.3",
     "easymde": "^2.21.0",
     "esbuild": "^0.28.2",

@@ -45,7 +45,9 @@
 
   <title>{% if errors %}Error: {% endif %}{{ title + " - " if title }}{{ application.name }}</title>
 
-  <script async defer src="{{ application.url }}{{ application.jsPath }}" type="module"></script>
+  {#- Deferred, not async: the bundle starts Alpine on DOMContentLoaded, after
+    the plugin scripts that register components on `alpine:init` have run. #}
+  <script defer src="{{ application.url }}{{ application.jsPath }}" type="module"></script>
 
   <style>
     :root {
@@ -161,7 +163,5 @@
     });
   }
 </script>
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
-<style>[x-cloak] { display: none !important; }</style>
 </body>
 </html>

@@ -59,7 +59,7 @@ Replaced flat navigation with a collapsible vertical sidebar featuring:
 - Grouped navigation items (main, tools, settings, etc.)
 - Fediverse group for ActivityPub-related pages
 - Responsive design (collapses on mobile)
-- Alpine.js-powered interactivity
+- Alpine.js-powered interactivity (bundled into the app script; no CDN)
 
 ### 3. Service Worker: Stale-While-Revalidate (Commit 157820d)
 

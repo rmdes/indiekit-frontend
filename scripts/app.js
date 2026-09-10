@@ -1,3 +1,4 @@
+import Alpine from "alpinejs";
 import { highlightAll } from "microlighter";
 
 import { AddAnotherComponent } from "../components/add-another/index.js";
@@ -31,3 +32,11 @@ customElements.define("textarea-field", TextareaFieldComponent);
 customElements.define("toggle-switch", ToggleSwitchComponent);
 
 highlightAll();
+
+// Alpine powers the ActivityPub, comments and files views. Plugin scripts
+// register their components on `alpine:init` from deferred scripts, so start
+// Alpine only once every deferred script has run. That is what DOMContentLoaded
+// guarantees, provided this bundle is itself a deferred (not async) module —
+// see the script tag in layouts/default.njk.
+window.Alpine = Alpine;
+document.addEventListener("DOMContentLoaded", () => Alpine.start());
