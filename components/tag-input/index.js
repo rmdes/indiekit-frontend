@@ -10,7 +10,9 @@ export const TagInputFieldComponent = class extends HTMLElement {
     this.$errorMessage = this.querySelector(".error-message");
     this.$hint = this.querySelector(".hint");
     this.$replacedLabel = this.querySelector(".label");
-    this.$replacedInput = this.querySelector(".input");
+    this.$replacedInput = /** @type {HTMLInputElement} */ (
+      this.querySelector(".input")
+    );
     this.value = this.$replacedInput.getAttribute("value");
 
     // Typeahead source (Category Governance, Layer 1). Read BEFORE the original

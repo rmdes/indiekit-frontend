@@ -1,6 +1,6 @@
 import EasyMDE from "easymde";
 
-import { openMediaBrowser } from "../../lib/media-browser.js";
+import { openMediaBrowser } from "../../scripts/media-browser.js";
 
 const paths = {
   bold: "M17 30c6.1 0 10-3 10-8 0-3.5-2.7-6.3-6.5-6.5V15c3-.4 5-3 5-6 0-4.5-3.5-7-9-7H5v28h12ZM12 7h2c2.5 0 4 1 4 3 0 1.5-1.5 3-4 3h-2V7Zm0 18v-7h2.3c3.1 0 4.7 1.1 4.7 3.4 0 2.5-1.4 3.6-4.8 3.6H12Z",

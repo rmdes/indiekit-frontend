@@ -7,8 +7,9 @@ export const ToggleSwitchComponent = class extends HTMLElement {
     this.dataset.toggleWired = "true";
 
     this.addEventListener("change", (event) => {
-      if (event.target.matches?.("[data-toggle-submit]")) {
-        event.target.closest("form")?.requestSubmit();
+      const $target = /** @type {HTMLElement} */ (event.target);
+      if ($target.matches("[data-toggle-submit]")) {
+        $target.closest("form")?.requestSubmit();
       }
     });
   }

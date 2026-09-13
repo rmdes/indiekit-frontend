@@ -49,11 +49,13 @@ test("filterSuggestions: caps at max", () => {
 });
 
 test("filterSuggestions: ignores non-strings + empties defensively", () => {
+  // @ts-expect-error — deliberately malformed input
   assert.deepEqual(filterSuggestions(["RSS", "", undefined, 5, "  "], []), [
     "RSS",
   ]);
 });
 
 test("filterSuggestions: tolerates missing arrays", () => {
+  // @ts-expect-error — deliberately called without arguments
   assert.deepEqual(filterSuggestions(), []);
 });

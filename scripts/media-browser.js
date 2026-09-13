@@ -39,6 +39,14 @@ function getFilename(url) {
   }
 }
 
+/**
+ * Open the media browser dialog
+ * @param {object} options - Options
+ * @param {string} options.endpoint - Media endpoint URL
+ * @param {(url: string, filename: string, isImage: boolean) => void} options.onSelect - Called with the chosen file
+ * @param {() => void} options.onClose - Called when the dialog closes
+ * @param {string} [options.filterType] - Only show this media type
+ */
 export function openMediaBrowser({ endpoint, onSelect, onClose, filterType }) {
   let allItems = [];
   let afterCursor;
@@ -84,7 +92,9 @@ export function openMediaBrowser({ endpoint, onSelect, onClose, filterType }) {
     button.dataset.filter = filter;
     button.addEventListener("click", () => {
       activeFilter = filter;
-      for (const f of filters.querySelectorAll(".media-browser__filter")) {
+      for (const f of /** @type {NodeListOf<HTMLElement>} */ (
+        filters.querySelectorAll(".media-browser__filter")
+      )) {
         f.classList.toggle("is-active", f.dataset.filter === filter);
       }
       renderGrid();
@@ -226,7 +236,7 @@ export function openMediaBrowser({ endpoint, onSelect, onClose, filterType }) {
     } catch (error) {
       const errorMessage = document.createElement("p");
       errorMessage.className = "media-browser__error";
-      errorMessage.textContent = `Error loading media: ${error.message}`;
+      errorMessage.textContent = `Error loading media: ${error instanceof Error ? error.message : String(error)}`;
       grid.replaceChildren(errorMessage);
     } finally {
       loading.hidden = true;

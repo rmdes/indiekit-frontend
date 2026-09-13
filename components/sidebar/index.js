@@ -2,7 +2,9 @@ export const SidebarComponent = class extends HTMLElement {
   connectedCallback() {
     this.closeButton = this.querySelector(".sidebar__close");
     this.backdrop = document.querySelector(".sidebar-backdrop");
-    this.hamburger = document.querySelector(".header__hamburger");
+    this.hamburger = /** @type {HTMLElement | null} */ (
+      document.querySelector(".header__hamburger")
+    );
 
     if (this.closeButton) {
       this.closeButton.addEventListener("click", () => this.close());
@@ -37,7 +39,9 @@ export const SidebarComponent = class extends HTMLElement {
       this.backdrop.classList.add("sidebar-backdrop--visible");
     }
 
-    const firstLink = this.querySelector(".sidebar__list-item a");
+    const firstLink = /** @type {HTMLElement | null} */ (
+      this.querySelector(".sidebar__list-item a")
+    );
     if (firstLink) {
       firstLink.focus();
     }

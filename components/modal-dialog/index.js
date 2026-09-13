@@ -15,18 +15,16 @@ export const ModalDialogComponent = class extends HTMLElement {
     this.dataset.modalWired = "true";
 
     document.addEventListener("click", (event) => {
-      const $opener = event.target.closest?.(
-        `[data-modal-open="${CSS.escape(this.id)}"]`,
+      const $target = /** @type {HTMLElement} */ (event.target);
+      const $opener = /** @type {HTMLElement | null} */ (
+        $target.closest(`[data-modal-open="${CSS.escape(this.id)}"]`)
       );
       if ($opener) {
         this.open($opener);
         return;
       }
 
-      if (
-        this.contains(event.target) &&
-        event.target.closest?.("[data-modal-close]")
-      ) {
+      if (this.contains($target) && $target.closest("[data-modal-close]")) {
         this.close();
       }
     });
@@ -55,7 +53,9 @@ export const ModalDialogComponent = class extends HTMLElement {
 
     this.$opener = $opener;
     $dialog.showModal();
-    $dialog.querySelector(focusableSelector)?.focus();
+    /** @type {HTMLElement | null} */ (
+      $dialog.querySelector(focusableSelector)
+    )?.focus();
   }
 
   /**

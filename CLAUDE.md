@@ -120,7 +120,7 @@ Sidebar sections now use conditional wrappers:
 
 ### 9. Media Browser Integration (Commits cdc7e00 onwards)
 
-**Files:** `lib/media-browser.js`, `components/file-input/index.js`
+**Files:** `scripts/media-browser.js`, `components/file-input/index.js`
 
 Added modal media browser UI for file/image selection:
 - Browse uploaded media files

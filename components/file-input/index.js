@@ -1,6 +1,6 @@
 import { IndiekitError } from "@indiekit/error";
 
-import { openMediaBrowser } from "../../lib/media-browser.js";
+import { openMediaBrowser } from "../../scripts/media-browser.js";
 import { wrapElement } from "../../scripts/utils/wrap-element.js";
 
 export const FileInputFieldController = class extends HTMLElement {
