@@ -38,5 +38,5 @@ highlightAll();
 // Alpine only once every deferred script has run. That is what DOMContentLoaded
 // guarantees, provided this bundle is itself a deferred (not async) module —
 // see the script tag in layouts/default.njk.
-Object.assign(window, { Alpine });
+Object.assign(globalThis, { Alpine });
 document.addEventListener("DOMContentLoaded", () => Alpine.start());
