@@ -1,5 +1,5 @@
-import { getElement } from "../../scripts/utils/get-element.js";
 import { focusableSelector } from "../../scripts/utils/focusable.js";
+import { getElement } from "../../scripts/utils/get-element.js";
 
 export const AddAnotherComponent = class extends HTMLElement {
   /**

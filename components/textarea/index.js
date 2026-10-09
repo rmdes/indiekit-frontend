@@ -1,7 +1,7 @@
 import EasyMDE from "easymde";
 
-import { getElement } from "../../scripts/utils/get-element.js";
 import { openMediaBrowser } from "../../scripts/media-browser.js";
+import { getElement } from "../../scripts/utils/get-element.js";
 
 const paths = {
   bold: "M17 30c6.1 0 10-3 10-8 0-3.5-2.7-6.3-6.5-6.5V15c3-.4 5-3 5-6 0-4.5-3.5-7-9-7H5v28h12ZM12 7h2c2.5 0 4 1 4 3 0 1.5-1.5 3-4 3h-2V7Zm0 18v-7h2.3c3.1 0 4.7 1.1 4.7 3.4 0 2.5-1.4 3.6-4.8 3.6H12Z",
@@ -296,7 +296,7 @@ export const TextareaFieldComponent = class extends HTMLElement {
     const $cmScroll = this.querySelector(".CodeMirror-scroll");
     if ($cmScroll) {
       $cmScroll.addEventListener("scroll", () => {
-        if (!this._$floatingToolbar.classList.contains("is-visible")) {
+        if (!$floating.classList.contains("is-visible")) {
           return;
         }
 
@@ -317,7 +317,7 @@ export const TextareaFieldComponent = class extends HTMLElement {
   _showFloatingToolbar(cm) {
     const $floating = this._$floatingToolbar;
     const $cmElement = this.querySelector(".CodeMirror");
-    if (!$cmElement) return;
+    if (!$floating || !$cmElement) return;
 
     // Get coordinates of selection start relative to editor
     const cursor = cm.getCursor("from");
@@ -354,7 +354,7 @@ export const TextareaFieldComponent = class extends HTMLElement {
     this._mediaBrowserOpen = true;
 
     openMediaBrowser({
-      endpoint: this.editorEndpoint,
+      endpoint: this.editorEndpoint || "",
       onSelect: (url, filename, isImage) => {
         const cm = editor.codemirror;
         const cursor = cm.getCursor();
