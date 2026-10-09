@@ -1,5 +1,6 @@
 import TagInput from "@accessible-components/tag-input";
 
+import { getElement } from "../../scripts/utils/get-element.js";
 import { buildSuggestionsUrl, filterSuggestions } from "./suggestions.js";
 
 const SUGGESTIONS_DEBOUNCE_MS = 160;
@@ -7,12 +8,10 @@ const suggestionInstance = { count: 0 };
 
 export const TagInputFieldComponent = class extends HTMLElement {
   connectedCallback() {
-    this.$errorMessage = this.querySelector(".error-message");
-    this.$hint = this.querySelector(".hint");
-    this.$replacedLabel = this.querySelector(".label");
-    this.$replacedInput = /** @type {HTMLInputElement} */ (
-      this.querySelector(".input")
-    );
+    this.$errorMessage = getElement(this, ".error-message");
+    this.$hint = getElement(this, ".hint");
+    this.$replacedLabel = getElement(this, ".label");
+    this.$replacedInput = getElement(this, ".input");
     this.value = this.$replacedInput.getAttribute("value");
 
     // Typeahead source (Category Governance, Layer 1). Read BEFORE the original
@@ -47,7 +46,8 @@ export const TagInputFieldComponent = class extends HTMLElement {
       this.insertBefore(this.$errorMessage, this.querySelector(".tag-input"));
     }
 
-    this.querySelector(".tag-input-label").classList.add("label");
+    const $tagInputLabel = getElement(this, ".tag-input-label");
+    $tagInputLabel.classList.add("label");
 
     this.$replacedLabel.remove();
     this.$replacedInput.remove();
@@ -55,7 +55,7 @@ export const TagInputFieldComponent = class extends HTMLElement {
     /**
      * @type {HTMLInputElement}
      */
-    const $tagInputInput = this.querySelector(".tag-input__input");
+    const $tagInputInput = getElement(this, ".tag-input__input");
 
     // Add a tag when the Comma key is pressed. This matches the parsing done
     // when JavaScript is not enabled, meaning hint text correct in both cases.

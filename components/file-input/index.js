@@ -1,9 +1,15 @@
 import { IndiekitError } from "@indiekit/error";
 
+import { getElement } from "../../scripts/utils/get-element.js";
 import { openMediaBrowser } from "../../scripts/media-browser.js";
 import { wrapElement } from "../../scripts/utils/wrap-element.js";
 
 export const FileInputFieldController = class extends HTMLElement {
+  /**
+   * @type {string}
+   */
+  endpoint;
+
   /**
    * @type {HTMLElement}
    */
@@ -30,13 +36,19 @@ export const FileInputFieldController = class extends HTMLElement {
   $errorMessageTemplate;
 
   connectedCallback() {
-    this.endpoint = this.getAttribute("endpoint");
+    const endpoint = this.getAttribute("endpoint");
 
-    this.$uploadProgress = this.querySelector(".file-input__progress");
-    this.$fileInputPath = this.querySelector(".file-input__path");
-    this.$fileInputPicker = this.querySelector(".file-input__picker");
-    this.$fileInputPickerTemplate = this.querySelector("#file-input-picker");
-    this.$errorMessageTemplate = this.querySelector("#error-message");
+    if (!endpoint) {
+      throw new Error("File input requires an `endpoint` attribute");
+    }
+
+    this.endpoint = endpoint;
+
+    this.$uploadProgress = getElement(this, ".file-input__progress");
+    this.$fileInputPath = getElement(this, ".file-input__path");
+    this.$fileInputPicker = getElement(this, ".file-input__picker");
+    this.$fileInputPickerTemplate = getElement(this, "#file-input-picker");
+    this.$errorMessageTemplate = getElement(this, "#error-message");
 
     if (!this.$fileInputPicker) {
       // Create group to hold input and button
@@ -54,7 +66,7 @@ export const FileInputFieldController = class extends HTMLElement {
       $inputButtonGroup.append($fileInputPicker);
 
       // Update `this.$fileInputPicker`
-      this.$fileInputPicker = this.querySelector(".file-input__picker");
+      this.$fileInputPicker = getElement(this, ".file-input__picker");
     }
 
     // Make file input label behave like a button to trigger file input
@@ -68,11 +80,13 @@ export const FileInputFieldController = class extends HTMLElement {
         event.preventDefault();
       }
 
-      if (event.key === "Enter") {
-        const $target = /** @type {HTMLElement} */ (event.target);
-
-        $target.click();
+      if (event.key !== "Enter") {
+        return;
       }
+
+      const $target = /** @type {HTMLElement} */ (event.target);
+
+      $target.click();
     });
 
     $fileInputButton.addEventListener("keyup", (event) => {
@@ -88,8 +102,10 @@ export const FileInputFieldController = class extends HTMLElement {
     });
 
     // Add event to file input
-    const $fileInputFile =
-      this.$fileInputPicker.querySelector(`.file-input__file`);
+    const $fileInputFile = getElement(
+      this.$fileInputPicker,
+      ".file-input__file",
+    );
     $fileInputFile.addEventListener("change", (event) => this.fetch(event));
 
     // Add "Browse media" button next to the upload button
@@ -138,12 +154,17 @@ export const FileInputFieldController = class extends HTMLElement {
    * @param {Event} event - File input event
    */
   async fetch(event) {
+    const $target = /** @type {HTMLInputElement} */ (event.target);
+    const [file] = $target.files ?? [];
+
+    if (!file) {
+      return;
+    }
+
     this.$uploadProgress.hidden = false;
 
-    const $target = /** @type {HTMLInputElement} */ (event.target);
     const formData = new FormData();
-
-    formData.append("file", $target.files[0]);
+    formData.append("file", file);
 
     try {
       this.$fileInputPath.readOnly = true;
@@ -160,8 +181,13 @@ export const FileInputFieldController = class extends HTMLElement {
         throw await IndiekitError.fromFetch(endpointResponse);
       }
 
-      this.$fileInputPath.value =
-        await endpointResponse.headers.get("location");
+      const location = endpointResponse.headers.get("location");
+
+      if (!location) {
+        throw new Error("No location for uploaded file");
+      }
+
+      this.$fileInputPath.value = location;
       this.$fileInputPath.readOnly = false;
       this.$uploadProgress.hidden = true;
     } catch (error) {

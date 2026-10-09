@@ -3,6 +3,11 @@
  * @see {@link https://github.com/alphagov/govuk-frontend/blob/main/packages/govuk-frontend/src/govuk/components/radios/radios.mjs}
  */
 export const RadiosFieldComponent = class extends HTMLElement {
+  /**
+   * @type {NodeListOf<HTMLInputElement>}
+   */
+  $$inputTargets;
+
   connectedCallback() {
     this.$$inputTargets = this.querySelectorAll("input");
     for (const $input of this.$$inputTargets) {
@@ -74,11 +79,13 @@ export const RadiosFieldComponent = class extends HTMLElement {
 
     const $target = document.querySelector(`#${targetId}`);
 
-    if ($target && $target.classList.contains("radios__conditional")) {
-      const inputIsChecked = input.checked;
-
-      input.setAttribute("aria-expanded", inputIsChecked.toString());
-      $target.classList.toggle("radios__conditional--hidden", !inputIsChecked);
+    if (!$target?.classList.contains("radios__conditional")) {
+      return;
     }
+
+    const inputIsChecked = input.checked;
+
+    input.setAttribute("aria-expanded", inputIsChecked.toString());
+    $target.classList.toggle("radios__conditional--hidden", !inputIsChecked);
   }
 };

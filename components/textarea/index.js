@@ -1,5 +1,6 @@
 import EasyMDE from "easymde";
 
+import { getElement } from "../../scripts/utils/get-element.js";
 import { openMediaBrowser } from "../../scripts/media-browser.js";
 
 const paths = {
@@ -70,6 +71,11 @@ const createButtonSvgElement = (name) => {
 };
 
 export const TextareaFieldComponent = class extends HTMLElement {
+  /**
+   * @type {HTMLTextAreaElement}
+   */
+  $textarea;
+
   connectedCallback() {
     this.editor = this.getAttribute("editor");
 
@@ -77,24 +83,21 @@ export const TextareaFieldComponent = class extends HTMLElement {
       return;
     }
 
-    this.editorEndpoint = this.getAttribute("editor-endpoint");
+    this.editorEndpoint = this.getAttribute("editor-endpoint") ?? undefined;
     this.editorId = this.getAttribute("editor-id");
     this.editorImageUpload = this.getAttribute("editor-image-upload");
     this.editorLocale = this.getAttribute("editor-locale");
     this.editorStatus = this.getAttribute("editor-status");
     this.editorToolbar = this.getAttribute("editor-toolbar");
-    this.$label = this.querySelector("label");
-    this.$textarea = this.querySelector("textarea");
+    this.$label = getElement(this, "label");
+    this.$textarea = getElement(this, "textarea");
 
-    const status =
-      this?.editorStatus === "false"
-        ? false
-        : [
-            ...(this.editorImageUpload === "false" ? [] : ["upload-image"]),
-            "words",
-            "characters",
-            "autosave",
-          ];
+    const status = this?.editorStatus !== "false" && [
+      ...(this.editorImageUpload === "false" ? [] : ["upload-image"]),
+      "words",
+      "characters",
+      "autosave",
+    ];
 
     const toolbar =
       this?.editorToolbar === "false"
@@ -143,7 +146,7 @@ export const TextareaFieldComponent = class extends HTMLElement {
       minHeight: "6rem",
       previewClass: ["editor-preview", "s-flow"],
       status,
-      // @ts-ignore
+      // @ts-expect-error
       toolbar,
       unorderedListStyle: "-",
     });
@@ -156,21 +159,24 @@ export const TextareaFieldComponent = class extends HTMLElement {
         const linkButton = /** @type {HTMLElement} */ (event.target)?.closest(
           ".link",
         );
-        if (linkButton) {
-          event.preventDefault();
-          event.stopPropagation();
 
-          const linkTemplate = `[${editor.codemirror.getSelection()}]()`;
-          editor.codemirror.replaceSelection(linkTemplate);
-          editor.codemirror.focus();
-
-          // Move cursor into the bracket for direct pasting
-          const cursorPosition = editor.codemirror.getCursor();
-          editor.codemirror.setSelection(
-            { line: cursorPosition.line, ch: cursorPosition.ch - 1 },
-            { line: cursorPosition.line, ch: cursorPosition.ch - 1 },
-          );
+        if (!linkButton) {
+          return;
         }
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const linkTemplate = `[${editor.codemirror.getSelection()}]()`;
+        editor.codemirror.replaceSelection(linkTemplate);
+        editor.codemirror.focus();
+
+        // Move cursor into the bracket for direct pasting
+        const cursorPosition = editor.codemirror.getCursor();
+        editor.codemirror.setSelection(
+          { line: cursorPosition.line, ch: cursorPosition.ch - 1 },
+          { line: cursorPosition.line, ch: cursorPosition.ch - 1 },
+        );
       },
       { capture: true },
     );
@@ -186,27 +192,30 @@ export const TextareaFieldComponent = class extends HTMLElement {
       const pastedText = event.clipboardData?.getData("text/plain") || "";
       const urlMatch = pastedText.match(/https?:\/\/[^\s]+/);
 
-      if (urlMatch) {
-        event.preventDefault();
-        const link = `[${selectedText}](${urlMatch[0]})`;
-        editor.codemirror.replaceSelection(link);
+      if (!urlMatch) {
+        return;
       }
+
+      event.preventDefault();
+
+      const link = `[${selectedText}](${urlMatch[0]})`;
+      editor.codemirror.replaceSelection(link);
     });
 
-    // Restore label behaviour
     /**
+     * Restore label behaviour
      * @type {HTMLTextAreaElement}
      */
-    const $codeMirrorTextarea = this.querySelector(".CodeMirror textarea");
+    const $codeMirrorTextarea = getElement(this, ".CodeMirror textarea");
     this.$label.addEventListener("click", () => {
       $codeMirrorTextarea.focus();
     });
 
-    // Update character count
     /**
+     * Update character count
      * @type {HTMLElement}
      */
-    const $characters = this.querySelector(".editor-statusbar .characters");
+    const $characters = getElement(this, ".editor-statusbar .characters");
     editor.codemirror.on("update", () => {
       if ($characters) {
         $characters.innerHTML = String(editor.value().length);

@@ -1,3 +1,4 @@
+import { getElement } from "../../scripts/utils/get-element.js";
 import { focusableSelector } from "../../scripts/utils/focusable.js";
 
 export const AddAnotherComponent = class extends HTMLElement {
@@ -22,10 +23,10 @@ export const AddAnotherComponent = class extends HTMLElement {
   $list;
 
   connectedCallback() {
-    this.$addButtonTemplate = this.querySelector("#add-button");
-    this.$deleteButtonTemplate = this.querySelector("#delete-button");
+    this.$addButtonTemplate = getElement(this, "#add-button");
+    this.$deleteButtonTemplate = getElement(this, "#delete-button");
     this.$$fields = this.querySelectorAll(".field");
-    this.$list = this.querySelector(".add-another__list");
+    this.$list = getElement(this, ".add-another__list");
 
     this.updateItems();
     this.createAddButton();
@@ -70,7 +71,7 @@ export const AddAnotherComponent = class extends HTMLElement {
    * @returns {HTMLLegendElement} - Group legend
    */
   getHeading() {
-    return this.querySelector("legend");
+    return getElement(this, "legend");
   }
 
   /**
@@ -91,14 +92,14 @@ export const AddAnotherComponent = class extends HTMLElement {
 
     this.append($addButton);
 
-    $addButton = this.querySelector(".add-another__add");
+    $addButton = getElement(this, ".add-another__add");
     $addButton.addEventListener("click", (event) => this.add(event));
   }
 
   /**
    * Get delete button
    * @param {HTMLElement} element - Containing element
-   * @returns {HTMLButtonElement} - Delete button
+   * @returns {HTMLButtonElement|null} - Delete button
    */
   getDeleteButton(element) {
     return element.querySelector(".add-another__delete");
@@ -109,8 +110,10 @@ export const AddAnotherComponent = class extends HTMLElement {
    * @param {HTMLElement} element - Containing element
    */
   createDeleteButton(element) {
-    const $deleteButton =
-      this.$deleteButtonTemplate.content.firstElementChild.cloneNode(true);
+    const $deleteButton = getElement(
+      this.$deleteButtonTemplate.content,
+      ".add-another__delete",
+    ).cloneNode(true);
 
     element.append($deleteButton);
   }
@@ -121,6 +124,11 @@ export const AddAnotherComponent = class extends HTMLElement {
    */
   updateDeleteButton(element) {
     const $deleteButton = this.getDeleteButton(element);
+
+    if (!$deleteButton) {
+      return;
+    }
+
     $deleteButton.setAttribute("aria-labelledby", `delete-title ${element.id}`);
     $deleteButton.addEventListener("click", (event) => this.delete(event));
   }
@@ -161,6 +169,11 @@ export const AddAnotherComponent = class extends HTMLElement {
     const $$labels = $item.querySelectorAll("label");
     for (const $label of $$labels) {
       const forAttribute = $label.getAttribute("for");
+
+      if (!forAttribute) {
+        continue;
+      }
+
       $label.setAttribute("for", forAttribute.replace("-0", `-${uid}`));
     }
 
@@ -190,13 +203,13 @@ export const AddAnotherComponent = class extends HTMLElement {
         this.createDeleteButton($item);
       }
 
+      const $deleteButton = this.getDeleteButton($item);
+
       // If has delete button
-      if (this.getDeleteButton($item)) {
+      if ($deleteButton) {
         if ($$items.length === 1) {
-          // If only 1 item in list, remove button
-          this.getDeleteButton($item).remove();
+          $deleteButton.remove();
         } else {
-          // Else update button attributes
           this.updateDeleteButton($item);
         }
       }
