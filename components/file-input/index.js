@@ -109,17 +109,17 @@ export const FileInputFieldController = class extends HTMLElement {
     $fileInputFile.addEventListener("change", (event) => this.fetch(event));
 
     // Add "Browse media" button next to the upload button
-    if (this.endpoint) {
-      const $inputButtonGroup = this.querySelector(".input-button-group");
-      if ($inputButtonGroup) {
-        const $browseButton = document.createElement("button");
-        $browseButton.type = "button";
-        $browseButton.className = "file-input__browse button button--secondary";
-        $browseButton.textContent = "Browse media";
-        $browseButton.addEventListener("click", () => this.browseMedia());
-        $inputButtonGroup.append($browseButton);
-      }
+    const $inputButtonGroup = this.querySelector(".input-button-group");
+    if (!this.endpoint || !$inputButtonGroup) {
+      return;
     }
+
+    const $browseButton = document.createElement("button");
+    $browseButton.type = "button";
+    $browseButton.className = "file-input__browse button button--secondary";
+    $browseButton.textContent = "Browse media";
+    $browseButton.addEventListener("click", () => this.browseMedia());
+    $inputButtonGroup.append($browseButton);
   }
 
   /**

@@ -1,6 +1,7 @@
 import TagInput from "@accessible-components/tag-input";
 
 import { getElement } from "../../scripts/utils/get-element.js";
+
 import { buildSuggestionsUrl, filterSuggestions } from "./suggestions.js";
 
 const SUGGESTIONS_DEBOUNCE_MS = 160;
