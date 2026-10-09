@@ -110,7 +110,7 @@ export const FileInputFieldController = class extends HTMLElement {
 
     // Add "Browse media" button next to the upload button
     const $inputButtonGroup = this.querySelector(".input-button-group");
-    if (!this.endpoint || !$inputButtonGroup) {
+    if (!$inputButtonGroup || !this.endpoint) {
       return;
     }
 
