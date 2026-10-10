@@ -27,7 +27,13 @@ export const GeoInputFieldComponent = class extends HTMLElement {
     this.i18nFailed = this.getAttribute("i18n-failed");
 
     this.$geoInput = getElement(this, ".geo-input");
-    this.$geoInputButton = getElement(this, ".geo-input__button");
+    // querySelector, NOT getElement: the button lives only inside
+    // `<template id="geo-input-button">` (template.njk:23) until THIS function
+    // clones it in. The `if (!this.$geoInputButton)` block below exists to do
+    // exactly that, so absence is not just expected here, it is the normal case
+    // — a throwing lookup aborted connectedCallback before it could run, and the
+    // "find location" button was never wired up.
+    this.$geoInputButton = this.querySelector(".geo-input__button");
     this.$geoInputButtonTemplate = getElement(this, "#geo-input-button");
     this.$errorMessageTemplate = getElement(this, "#error-message");
 
