@@ -21,7 +21,7 @@ export const FileInputFieldController = class extends HTMLElement {
   $fileInputPath;
 
   /**
-   * @type {HTMLElement}
+   * @type {HTMLElement | null}
    */
   $fileInputPicker;
 
@@ -46,7 +46,12 @@ export const FileInputFieldController = class extends HTMLElement {
 
     this.$uploadProgress = getElement(this, ".file-input__progress");
     this.$fileInputPath = getElement(this, ".file-input__path");
-    this.$fileInputPicker = getElement(this, ".file-input__picker");
+    // querySelector, NOT getElement: the picker lives only inside
+    // `<template id="file-input-picker">` until the block below clones it in,
+    // the same shape as geo-input. A throwing lookup aborted connectedCallback,
+    // so the upload button on photo, video, audio and featured fields was
+    // never wired up.
+    this.$fileInputPicker = this.querySelector(".file-input__picker");
     this.$fileInputPickerTemplate = getElement(this, "#file-input-picker");
     this.$errorMessageTemplate = getElement(this, "#error-message");
 

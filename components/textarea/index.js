@@ -213,7 +213,7 @@ export const TextareaFieldComponent = class extends HTMLElement {
 
     /**
      * Update character count
-     * @type {HTMLElement}
+     * @type {HTMLElement | null}
      */
     // querySelector, NOT getElement: the status bar is opt-out via the
     // `editor-status` attribute (see `const status =` above), so `.characters`

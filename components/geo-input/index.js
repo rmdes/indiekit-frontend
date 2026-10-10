@@ -8,7 +8,7 @@ export const GeoInputFieldComponent = class extends HTMLElement {
   $geoInput;
 
   /**
-   * @type {HTMLButtonElement}
+   * @type {HTMLButtonElement | null}
    */
   $geoInputButton;
 
