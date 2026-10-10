@@ -212,17 +212,10 @@ export const TextareaFieldComponent = class extends HTMLElement {
     });
 
     /**
-     * Update character count
+     * Update character count, if the status bar is shown (it can be turned
+     * off with `editor-status="false"`)
      * @type {HTMLElement | null}
      */
-    // querySelector, NOT getElement: the status bar is opt-out via the
-    // `editor-status` attribute (see `const status =` above), so `.characters`
-    // is legitimately absent when it is disabled. The `if ($characters)` guard
-    // on the next line was written for a lookup that returned null; a throwing
-    // one made it unreachable and aborted the rest of connectedCallback —
-    // taking the custom SVG toolbar icons and the fullscreen ResizeObserver
-    // with it. EasyMDE updates this counter itself, so this handler is a
-    // belt-and-braces second updater, which is why nothing visible broke.
     const $characters = this.querySelector(".editor-statusbar .characters");
     editor.codemirror.on("update", () => {
       if ($characters) {

@@ -35,6 +35,7 @@
 {% from "warning-text/macro.njk" import warningText with context %}
 {% from "sidebar/macro.njk" import sidebar with context %}
 {% from "widget/macro.njk" import widget with context %}
+{% set assetBase = assetPath | default("/assets") %}
 {% set appClasses = "app" + (" " + appClasses if appClasses) + (" app--minimalui" if minimalui) %}
 {% set mainClasses = "main" + (" " + mainClasses if mainClasses) %}
 <!DOCTYPE html>
@@ -47,7 +48,7 @@
 
   {#- Deferred, not async: the bundle starts Alpine on DOMContentLoaded, after
     the plugin scripts that register components on `alpine:init` have run. #}
-  <script defer src="{{ application.url }}{{ application.jsPath }}" type="module"></script>
+  <script defer src="{{ application.jsPath | url(application.url) }}" type="module"></script>
 
   <style>
     :root {
@@ -55,11 +56,11 @@
     }
   </style>
 
-  <link rel="stylesheet" href="{{ application.url }}{{ application.cssPath }}">
-  <link rel="alternate" href="{{ application.url }}/feed.jf2" type="application/jf2feed+json" title="JF2 Feed">
-  <link rel="apple-touch-icon" href="{{ application.url }}{{ assetPath | default("/assets") }}/app-icon-180-any.png">
-  <link rel="icon" href="{{ application.url }}{{ assetPath | default("/assets") }}/icon.svg">
-  <link rel="manifest" href="{{ application.url }}/app.webmanifest">
+  <link rel="stylesheet" href="{{ application.cssPath | url(application.url) }}">
+  <link rel="alternate" href="{{ "feed.jf2" | url(application.url) }}" type="application/jf2feed+json" title="JF2 Feed">
+  <link rel="apple-touch-icon" href="{{ (assetBase ~ "/app-icon-180-any.png") | url(application.url) }}">
+  <link rel="icon" href="{{ (assetBase ~ "/icon.svg") | url(application.url) }}">
+  <link rel="manifest" href="{{ "app.webmanifest" | url(application.url) }}">
 
   <meta name="supported-color-schemes" content="light dark">
   <meta name="theme-color" content="{{ themeColor(application.themeColor) }}" media="(prefers-color-scheme: light)">

@@ -9,16 +9,7 @@ const suggestionInstance = { count: 0 };
 
 export const TagInputFieldComponent = class extends HTMLElement {
   connectedCallback() {
-    // querySelector, NOT getElement: both are OPTIONAL in input/template.njk
-    // (`{% if opts.errorMessage %}` / `{% if opts.hint %}`), so they are absent
-    // on any field without a validation error or hint — which is most of them.
-    // getElement throws on a miss, and because this is the FIRST statement of
-    // connectedCallback the throw killed the whole function, including
-    // `new TagInput()` below: the category field rendered as a plain text input
-    // with no pills and no suggestions dropdown. The `if (this.$hint)` and
-    // `if (this.$errorMessage)` guards further down are the original author's
-    // evidence that absence is expected here; a throwing lookup made them
-    // unreachable.
+    // A hint and an error message are only rendered when given
     this.$errorMessage = this.querySelector(".error-message");
     this.$hint = this.querySelector(".hint");
     this.$replacedLabel = getElement(this, ".label");
