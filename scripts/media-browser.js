@@ -47,10 +47,15 @@ function getFilename(url) {
  * @param {() => void} options.onClose - Called when the dialog closes
  * @param {string} [options.filterType] - Only show this media type
  */
-export function openMediaBrowser({ endpoint, onSelect, onClose, filterType }) {
+export function openMediaBrowser({
+  endpoint,
+  onSelect,
+  onClose,
+  filterType = "all",
+}) {
   let allItems = [];
   let afterCursor;
-  let activeFilter = filterType || "all";
+  let activeFilter = filterType;
 
   // Create modal overlay
   const overlay = document.createElement("div");
