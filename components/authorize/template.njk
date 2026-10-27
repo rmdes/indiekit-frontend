@@ -1,4 +1,5 @@
-{% set clientLink = opts.client.name | friendlyUrl | linkTo(opts.client.url) %}
+{# The client names itself in its metadata, so escape it before Markdown #}
+{% set clientLink = opts.client.name | escape | friendlyUrl | linkTo(opts.client.url) %}
 {% set meLink = opts.me | friendlyUrl | replace("/", "/<wbr>") | linkTo(opts.me) %}
 <p class="{{ classes("authorize", opts) }} s-flow"
   {{- attributes(opts.attributes) }}>

@@ -8,13 +8,15 @@
       (__("success") if opts.type === "success") or
       __("important")
     }}</h2>
+    {#- Text is often taken from the request (`?success=`), so escape it;
+        Markdown in it still renders -#}
     {{ details({
       classes: "notification-banner__details",
-      summary: opts.text,
+      summary: opts.text | escape,
       text: opts.details
     }) if opts.details else prose({
       classes: "notification-banner__text",
-      text: opts.text | linkTo(opts.href)
+      text: opts.text | escape | linkTo(opts.href)
     }) | indent(4) }}
   </div>
 </notification-banner>
